@@ -1,0 +1,39 @@
+{
+  "name": "GCSS Technician",
+  "short_name": "GCSS Tech",
+  "description": "Technician inventory, projects, and timesheet system for Gulf Coast Special Systems.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#111827",
+  "background_color": "#111827",
+
+  "icons": [
+    {
+      "src": "/icons/gcss-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/gcss-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/gcss-icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/gcss-icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+
+  "prefer_related_applications": false
+}
