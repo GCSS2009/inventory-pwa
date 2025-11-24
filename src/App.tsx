@@ -213,7 +213,7 @@ const App: React.FC = () => {
     []
   );
   const [loadingEntries, setLoadingEntries] = useState(false);
-  const [timesheetError, setTimesheetError] = useState<string | null>(null);
+  const [, setTimesheetError] = useState<string | null>(null);
 
   const [currentClockIn, setCurrentClockIn] =
     useState<CurrentClockIn | null>(null);
