@@ -1,13 +1,82 @@
-.app {
+/* -------- Global layout & typography -------- */
+:root {
+  --gcss-bg: #f3f4f6;
+  --gcss-surface: #ffffff;
+  --gcss-text: #111827;
+  --gcss-muted: #6b7280;
+  --gcss-border: #e5e7eb;
+  --gcss-sidebar-bg: #020617;
+  --gcss-sidebar-text: #e5e7eb;
+  --gcss-sidebar-muted: #9ca3af;
+  --gcss-accent: #2563eb;
+  --gcss-accent-soft: #1d4ed8;
+  --gcss-danger: #b91c1c;
+  --gcss-input-bg: #ffffff;
+}
+
+[data-theme="dark"] {
+  --gcss-bg: #020617;
+  --gcss-surface: #020617;
+  --gcss-text: #e5e7eb;
+  --gcss-muted: #9ca3af;
+  --gcss-border: #1f2937;
+  --gcss-sidebar-bg: #020617;
+  --gcss-sidebar-text: #e5e7eb;
+  --gcss-sidebar-muted: #6b7280;
+  --gcss-accent: #3b82f6;
+  --gcss-accent-soft: #1d4ed8;
+  --gcss-danger: #f97373;
+  --gcss-input-bg: #020617;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
-  padding: 16px;
+  background: var(--gcss-bg);
+  color: var(--gcss-text);
 }
 
-h1 {
-  margin-bottom: 8px;
+/* Main shell wrapper (matches App.tsx className) */
+.app-shell {
+  min-height: 100vh;
 }
 
+/* Basic form elements – this fixes unreadable search boxes */
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--gcss-text);
+  background: var(--gcss-input-bg);
+  border-radius: 4px;
+  border: 1px solid var(--gcss-border);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--gcss-muted);
+}
+
+/* Generic button reset (inline styles still win) */
+button {
+  font-family: inherit;
+}
+
+/* -------- Tables (your original table styling) -------- */
 .table-wrapper {
   margin-top: 12px;
   overflow-x: auto;
@@ -29,4 +98,9 @@ td {
 th {
   background: #f3f3f3;
   text-align: left;
+}
+
+/* Allow smaller tables to use a smaller min-width when we set inline style */
+table.compact {
+  min-width: 520px;
 }
