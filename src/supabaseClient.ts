@@ -8,7 +8,7 @@ const supabaseAnonKey = "YOeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn(
-    "Supabase URL or anon key is missing. Check supabaseClient.ts configuration."
+    "Supabase env vars missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY."
   );
 }
 
