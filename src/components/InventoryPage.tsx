@@ -123,55 +123,51 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
   handleLogout,
   onRefreshHistory,
 }) => {
-  // Search used for the "Adjust Stock" dropdown
   const [adjustSearch, setAdjustSearch] = React.useState("");
-  // Search for the Inventory Items table
-  const [listSearch, setListSearch] = React.useState("");
+  const [inventorySearch, setInventorySearch] = React.useState("");
 
   const selectedItem =
     inventory.find((i) => i.id === selectedItemId) ?? null;
 
-  // Filter for Adjust Stock dropdown
-  const adjustInventory = React.useMemo(() => {
-    const q = adjustSearch.trim().toLowerCase();
-    if (!q) return inventory;
-
-    return inventory.filter((item) =>
-      [
-        item.description,
-        item.model_number,
-        item.type,
-        item.manufacturer,
-        item.category ?? "",
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(q)
-    );
+  // Items shown in the Adjust Stock dropdown (filtered by adjustSearch)
+  const adjustSelectItems = React.useMemo(() => {
+    const term = adjustSearch.trim().toLowerCase();
+    if (!term) return inventory;
+    return inventory.filter((item) => {
+      const haystack = (
+        item.description +
+        " " +
+        item.model_number +
+        " " +
+        item.type +
+        " " +
+        item.manufacturer
+      ).toLowerCase();
+      return haystack.includes(term);
+    });
   }, [inventory, adjustSearch]);
 
-  // Filter for Inventory Items list
-  const listInventory = React.useMemo(() => {
-    const q = listSearch.trim().toLowerCase();
-    if (!q) return inventory;
-
-    return inventory.filter((item) =>
-      [
-        item.description,
-        item.model_number,
-        item.type,
-        item.manufacturer,
-        item.category ?? "",
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(q)
-    );
-  }, [inventory, listSearch]);
+  // Items shown in the Inventory table (filtered by inventorySearch)
+  const filteredInventory = React.useMemo(() => {
+    const term = inventorySearch.trim().toLowerCase();
+    if (!term) return inventory;
+    return inventory.filter((item) => {
+      const haystack = (
+        item.description +
+        " " +
+        item.model_number +
+        " " +
+        item.type +
+        " " +
+        item.manufacturer
+      ).toLowerCase();
+      return haystack.includes(term);
+    });
+  }, [inventory, inventorySearch]);
 
   const groupedByCategory = React.useMemo(() => {
     const map: Record<string, Record<string, InventoryItem[]>> = {};
-    for (const item of listInventory) {
+    for (const item of filteredInventory) {
       const cat = item.category || "Uncategorized";
       const mfg = item.manufacturer || "Unknown";
 
@@ -180,7 +176,7 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
       map[cat][mfg].push(item);
     }
     return map;
-  }, [listInventory]);
+  }, [filteredInventory]);
 
   return (
     <div
@@ -222,11 +218,12 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
           style={{
             padding: "0.35rem 0.75rem",
             borderRadius: 4,
-            border: "1px solid var(--gcss-border, #d1d5db)",
-            background: "var(--gcss-surface, #0b1120)",
-            color: "var(--gcss-text, #e5e7eb)",
+            border: "1px solid var(--gcss-border, #4b5563)",
+            background: "transparent",
             cursor: "pointer",
             fontSize: "0.85rem",
+            fontWeight: 500,
+            color: "var(--gcss-text, #111827)",
           }}
         >
           Logout
@@ -235,24 +232,12 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
 
       {/* Errors */}
       {inventoryError && (
-        <div
-          style={{
-            color: "#dc2626",
-            marginBottom: "0.5rem",
-            fontSize: "0.85rem",
-          }}
-        >
+        <div style={{ color: "#dc2626", marginBottom: "0.5rem", fontSize: "0.85rem" }}>
           {inventoryError}
         </div>
       )}
       {changesError && (
-        <div
-          style={{
-            color: "#dc2626",
-            marginBottom: "0.5rem",
-            fontSize: "0.85rem",
-          }}
-        >
+        <div style={{ color: "#dc2626", marginBottom: "0.5rem", fontSize: "0.85rem" }}>
           {changesError}
         </div>
       )}
@@ -270,41 +255,13 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
           {/* Adjust Stock */}
           <div
             style={{
-              border: "1px solid var(--gcss-border, #1f2937)",
+              border: "1px solid var(--gcss-border, #d1d5db)",
               borderRadius: 6,
               padding: "0.9rem 1rem",
-              background: "var(--gcss-surface, #020617)",
+              background: "var(--gcss-surface, #f9fafb)",
             }}
           >
             <h2 style={{ marginTop: 0, fontSize: "1rem" }}>Adjust Stock</h2>
-
-            {/* Search for Adjust dropdown */}
-            <div style={{ marginBottom: "0.6rem" }}>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "0.8rem",
-                  marginBottom: "0.25rem",
-                }}
-              >
-                Search item
-              </label>
-              <input
-                type="text"
-                placeholder="Search description, model, type..."
-                value={adjustSearch}
-                onChange={(e) => setAdjustSearch(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.4rem",
-                  borderRadius: 4,
-                  border: "1px solid var(--gcss-border, #4b5563)",
-                  fontSize: "0.85rem",
-                  background: "var(--gcss-surface, #020617)",
-                  color: "var(--gcss-text, #e5e7eb)",
-                }}
-              />
-            </div>
 
             <div
               style={{
@@ -325,6 +282,25 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                 >
                   Item
                 </label>
+
+                {/* Search for Adjust dropdown */}
+                <input
+                  type="text"
+                  value={adjustSearch}
+                  onChange={(e) => setAdjustSearch(e.target.value)}
+                  placeholder="Search description, model, type…"
+                  style={{
+                    width: "100%",
+                    padding: "0.35rem 0.4rem",
+                    borderRadius: 4,
+                    border: "1px solid var(--gcss-border, #d1d5db)",
+                    fontSize: "0.8rem",
+                    marginBottom: "0.35rem",
+                    background: "var(--gcss-surface, #020617)",
+                    color: "var(--gcss-text, #e5e7eb)",
+                  }}
+                />
+
                 <select
                   value={selectedItemId === "" ? "" : selectedItemId}
                   onChange={(e) => {
@@ -335,14 +311,12 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                     width: "100%",
                     padding: "0.4rem",
                     borderRadius: 4,
-                    border: "1px solid var(--gcss-border, #4b5563)",
+                    border: "1px solid var(--gcss-border, #d1d5db)",
                     fontSize: "0.85rem",
-                    background: "var(--gcss-surface, #020617)",
-                    color: "var(--gcss-text, #e5e7eb)",
                   }}
                 >
                   <option value="">Select an item…</option>
-                  {adjustInventory.map((item) => (
+                  {adjustSelectItems.map((item) => (
                     <option key={item.id} value={item.id}>
                       {item.description} ({item.model_number}) –{" "}
                       {item.manufacturer}
@@ -370,10 +344,8 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                     width: "100%",
                     padding: "0.4rem",
                     borderRadius: 4,
-                    border: "1px solid var(--gcss-border, #4b5563)",
+                    border: "1px solid var(--gcss-border, #d1d5db)",
                     fontSize: "0.85rem",
-                    background: "var(--gcss-surface, #020617)",
-                    color: "var(--gcss-text, #e5e7eb)",
                   }}
                 />
               </div>
@@ -384,7 +356,7 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                 style={{
                   fontSize: "0.8rem",
                   marginBottom: "0.75rem",
-                  color: "var(--gcss-muted, #9ca3af)",
+                  color: "var(--gcss-muted, #6b7280)",
                 }}
               >
                 <strong>Current:</strong>{" "}
@@ -407,7 +379,7 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                 disabled={!selectedItem || !quantity}
                 style={adjustButtonStyle(
                   !!selectedItem && !!quantity,
-                  "#1d4ed8"
+                  "#e0ecff"
                 )}
               >
                 Office → Van
@@ -417,7 +389,7 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                 disabled={!selectedItem || !quantity}
                 style={adjustButtonStyle(
                   !!selectedItem && !!quantity,
-                  "#16a34a"
+                  "#e0ffe5"
                 )}
               >
                 Van → Office
@@ -427,7 +399,7 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                 disabled={!selectedItem || !quantity}
                 style={adjustButtonStyle(
                   !!selectedItem && !!quantity,
-                  "#b91c1c"
+                  "#ffecec"
                 )}
               >
                 Van → Used
@@ -437,10 +409,9 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                   onClick={() => handleAdjust("add_office")}
                   disabled={!selectedItem || !quantity}
                   style={{
-                    ...adjustButtonStyle(
-                      !!selectedItem && !!quantity,
-                      "#0ea5e9"
-                    ),
+                    ...adjustButtonStyle(!!selectedItem && !!quantity, "#0062ff"),
+                    color: "white",
+                    borderColor: "#004aad",
                     marginLeft: "auto",
                   }}
                 >
@@ -454,10 +425,10 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
           {profile?.role === "admin" && (
             <div
               style={{
-                border: "1px solid var(--gcss-border, #1f2937)",
+                border: "1px solid var(--gcss-border, #d1d5db)",
                 borderRadius: 6,
                 padding: "0.9rem 1rem",
-                background: "var(--gcss-surface, #020617)",
+                background: "var(--gcss-surface, #f9fafb)",
               }}
             >
               <h2 style={{ marginTop: 0, fontSize: "1rem" }}>
@@ -487,7 +458,13 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                       onChange={(e) =>
                         setNewItemCategory(e.target.value as InventoryCategory)
                       }
-                      style={newItemInputStyle}
+                      style={{
+                        width: "100%",
+                        padding: "0.4rem",
+                        borderRadius: 4,
+                        border: "1px solid var(--gcss-border, #d1d5db)",
+                        fontSize: "0.85rem",
+                      }}
                     >
                       <option value="Fire Control">Fire Control</option>
                       <option value="Addressable">Addressable</option>
@@ -647,13 +624,13 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
 
         {/* RIGHT COLUMN: Inventory table */}
         <div>
-          {/* Header + list search */}
+          {/* Title + search row */}
           <div
             style={{
               display: "flex",
-              justifyContent: "space-between",
               alignItems: "center",
-              gap: "0.75rem",
+              justifyContent: "space-between",
+              gap: "0.5rem",
               marginBottom: "0.5rem",
               flexWrap: "wrap",
             }}
@@ -661,16 +638,15 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
             <h2 style={{ fontSize: "1rem", margin: 0 }}>Inventory Items</h2>
             <input
               type="text"
-              placeholder="Search description, model, type..."
-              value={listSearch}
-              onChange={(e) => setListSearch(e.target.value)}
+              value={inventorySearch}
+              onChange={(e) => setInventorySearch(e.target.value)}
+              placeholder="Search description, model, type…"
               style={{
-                width: "260px",
-                maxWidth: "100%",
-                padding: "0.35rem 0.6rem",
-                borderRadius: 999,
-                border: "1px solid var(--gcss-border, #4b5563)",
-                fontSize: "0.85rem",
+                minWidth: 220,
+                padding: "0.35rem 0.5rem",
+                borderRadius: 4,
+                border: "1px solid var(--gcss-border, #d1d5db)",
+                fontSize: "0.8rem",
                 background: "var(--gcss-surface, #020617)",
                 color: "var(--gcss-text, #e5e7eb)",
               }}
@@ -679,7 +655,7 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
 
           {loadingInventory ? (
             <div>Loading inventory…</div>
-          ) : listInventory.length === 0 ? (
+          ) : filteredInventory.length === 0 ? (
             <div
               style={{
                 fontSize: "0.9rem",
@@ -776,9 +752,8 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                   padding: "0.25rem 0.5rem",
                   fontSize: "0.75rem",
                   borderRadius: 999,
-                  border: "1px solid var(--gcss-border, #4b5563)",
-                  background: "var(--gcss-surface, #020617)",
-                  color: "var(--gcss-text, #e5e7eb)",
+                  border: "1px solid var(--gcss-border, #d1d5db)",
+                  background: "var(--gcss-surface, #f9fafb)",
                   cursor: "pointer",
                 }}
               >
@@ -855,23 +830,17 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
   );
 };
 
-const adjustButtonStyle = (
-  enabled: boolean,
-  color: string
-): React.CSSProperties => ({
+const adjustButtonStyle = (enabled: boolean, bg: string): React.CSSProperties => ({
   padding: "0.4rem 0.75rem",
-  borderRadius: 999,
-  border: "none",
-  background: enabled ? color : "#4b5563",
-  opacity: enabled ? 1 : 0.5,
+  borderRadius: 4,
+  border: "1px solid #ccc",
+  background: enabled ? bg : "#f3f4f6",
   cursor: enabled ? "pointer" : "not-allowed",
   fontSize: "0.8rem",
-  color: "#f9fafb",
-  fontWeight: 600,
 });
 
 const thBase: React.CSSProperties = {
-  borderBottom: "1px solid #374151",
+  borderBottom: "1px solid #ddd",
   padding: "0.25rem 0.4rem",
 };
 
@@ -886,7 +855,7 @@ const thRight: React.CSSProperties = {
 };
 
 const td: React.CSSProperties = {
-  borderBottom: "1px solid #111827",
+  borderBottom: "1px solid #eee",
   padding: "0.25rem 0.4rem",
 };
 
@@ -899,10 +868,8 @@ const newItemInputStyle: React.CSSProperties = {
   width: "100%",
   padding: "0.4rem",
   borderRadius: 4,
-  border: "1px solid var(--gcss-border, #4b5563)",
+  border: "1px solid var(--gcss-border, #d1d5db)",
   fontSize: "0.85rem",
-  background: "var(--gcss-surface, #020617)",
-  color: "var(--gcss-text, #e5e7eb)",
 };
 
 export default InventoryPage;
