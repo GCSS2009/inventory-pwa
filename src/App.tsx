@@ -986,18 +986,129 @@ const App: React.FC = () => {
     loadingInventory || loadingProjects || loadingEntries;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: isMobile ? "column" : "row",
-        minHeight: "100vh",
-        background: "var(--gcss-bg)",
-        color: "var(--gcss-text)",
-        fontFamily:
-          '"Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif',
-        position: "relative",
-      }}
-    >
+    <div className="app-shell" style={{ position: "relative" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          minHeight: "100vh",
+          background: "var(--gcss-bg)",
+          color: "var(--gcss-text)",
+        }}
+      >
+        <Sidebar
+          activePage={activePage}
+          setActivePage={setActivePage}
+          theme={theme}
+          setTheme={setTheme}
+          profile={profile}
+          session={session}
+          isMobile={isMobile}
+        />
+
+        <main
+          style={{
+            flex: 1,
+            background: "var(--gcss-surface)",
+            padding: isMobile
+              ? "0.75rem 0.5rem 1.5rem"
+              : "1.25rem 1.5rem 2rem",
+            boxSizing: "border-box",
+          }}
+        >
+          {activePage === "inventory" && (
+            <InventoryPage
+              session={session}
+              profile={profile}
+              inventory={inventory}
+              loadingInventory={loadingInventory}
+              inventoryError={inventoryError}
+              changes={changes}
+              loadingChanges={loadingChanges}
+              changesError={changesError}
+              selectedItemId={selectedItemId}
+              setSelectedItemId={setSelectedItemId}
+              quantity={quantity}
+              setQuantity={setQuantity}
+              handleAdjust={handleAdjust}
+              handleLogout={handleLogout}
+              creatingItem={creatingInvItem}
+              newItemCategory={newInvCategory}
+              setNewItemCategory={setNewInvCategory}
+              newItemDescription={newInvDescription}
+              setNewItemDescription={setNewInvDescription}
+              newItemType={newInvType}
+              setNewItemType={setNewInvType}
+              newItemModelNumber={newInvModelNumber}
+              setNewItemModelNumber={setNewInvModelNumber}
+              newItemManufacturer={newInvManufacturer}
+              setNewItemManufacturer={setNewInvManufacturer}
+              newItemOfficeQty={newInvOfficeQty}
+              setNewItemOfficeQty={setNewInvOfficeQty}
+              newItemVanQty={newInvVanQty}
+              setNewItemVanQty={setNewInvVanQty}
+              handleCreateItem={handleCreateInventoryItem}
+              onRefreshHistory={loadChanges}
+            />
+          )}
+
+          {activePage === "projects" && (
+            <ProjectsPage
+              profile={profile}
+              projects={projects}
+              projectItems={projectItems}
+              inventory={inventory}
+              loadingProjects={loadingProjects}
+              projectsError={projectsError}
+              selectedProjectId={selectedProjectId}
+              setSelectedProjectId={setSelectedProjectId}
+              newProjectName={newProjectName}
+              setNewProjectName={setNewProjectName}
+              newProjectNotes={newProjectNotes}
+              setNewProjectNotes={setNewProjectNotes}
+              creatingProject={creatingProject}
+              handleCreateProject={handleCreateProject}
+              newItemDescription={newItemDescription}
+              setNewItemDescription={setNewItemDescription}
+              newItemModelNumber={newItemModelNumber}
+              setNewItemModelNumber={setNewItemModelNumber}
+              newItemType={newItemType}
+              setNewItemType={setNewItemType}
+              newItemRequiredQty={newItemRequiredQty}
+              setNewItemRequiredQty={setNewItemRequiredQty}
+              savingProjectItem={savingProjectItem}
+              handleAddProjectItem={handleAddProjectItem}
+              selectedProjectItemId={selectedProjectItemId}
+              setSelectedProjectItemId={setSelectedProjectItemId}
+              allocationQty={allocationQty}
+              setAllocationQty={setAllocationQty}
+              handleAllocateToProject={handleAllocateToProject}
+              handleLogout={handleLogout}
+            />
+          )}
+
+          {activePage === "timesheet" && (
+            <TimesheetPage
+              session={session}
+              profile={profile}
+              currentClockIn={currentClockIn}
+              selectedProject={tsProject}
+              setSelectedProject={setTsProject}
+              selectedWorkType={tsWorkType}
+              setSelectedWorkType={setTsWorkType}
+              onClockIn={handleClockIn}
+              onClockOut={handleClockOut}
+              weekEnding={weekEnding}
+              setWeekEnding={setWeekEnding}
+              entries={timesheetEntries}
+              loadingEntries={loadingEntries}
+              totalHours={totalHours}
+              downloadTimesheet={downloadTimesheet}
+            />
+          )}
+        </main>
+      </div>
+
       {/* Toasts */}
       <div
         style={{
@@ -1051,116 +1162,6 @@ const App: React.FC = () => {
           Loading data…
         </div>
       )}
-
-      <Sidebar
-        activePage={activePage}
-        setActivePage={setActivePage}
-        theme={theme}
-        setTheme={setTheme}
-        profile={profile}
-        session={session}
-        isMobile={isMobile}
-      />
-
-      <main
-        style={{
-          flex: 1,
-          background: "var(--gcss-surface)",
-          padding: isMobile ? "0.75rem 0.5rem 1.5rem" : "1.25rem 1.5rem 2rem",
-          boxSizing: "border-box",
-        }}
-      >
-        {activePage === "inventory" && (
-          <InventoryPage
-            session={session}
-            profile={profile}
-            inventory={inventory}
-            loadingInventory={loadingInventory}
-            inventoryError={inventoryError}
-            changes={changes}
-            loadingChanges={loadingChanges}
-            changesError={changesError}
-            selectedItemId={selectedItemId}
-            setSelectedItemId={setSelectedItemId}
-            quantity={quantity}
-            setQuantity={setQuantity}
-            handleAdjust={handleAdjust}
-            handleLogout={handleLogout}
-            creatingItem={creatingInvItem}
-            newItemCategory={newInvCategory}
-            setNewItemCategory={setNewInvCategory}
-            newItemDescription={newInvDescription}
-            setNewItemDescription={setNewInvDescription}
-            newItemType={newInvType}
-            setNewItemType={setNewInvType}
-            newItemModelNumber={newInvModelNumber}
-            setNewItemModelNumber={setNewInvModelNumber}
-            newItemManufacturer={newInvManufacturer}
-            setNewItemManufacturer={setNewInvManufacturer}
-            newItemOfficeQty={newInvOfficeQty}
-            setNewItemOfficeQty={setNewInvOfficeQty}
-            newItemVanQty={newInvVanQty}
-            setNewItemVanQty={setNewInvVanQty}
-            handleCreateItem={handleCreateInventoryItem}
-            onRefreshHistory={loadChanges}
-          />
-        )}
-
-        {activePage === "projects" && (
-          <ProjectsPage
-            profile={profile}
-            projects={projects}
-            projectItems={projectItems}
-            inventory={inventory}
-            loadingProjects={loadingProjects}
-            projectsError={projectsError}
-            selectedProjectId={selectedProjectId}
-            setSelectedProjectId={setSelectedProjectId}
-            newProjectName={newProjectName}
-            setNewProjectName={setNewProjectName}
-            newProjectNotes={newProjectNotes}
-            setNewProjectNotes={setNewProjectNotes}
-            creatingProject={creatingProject}
-            handleCreateProject={handleCreateProject}
-            newItemDescription={newItemDescription}
-            setNewItemDescription={setNewItemDescription}
-            newItemModelNumber={newItemModelNumber}
-            setNewItemModelNumber={setNewItemModelNumber}
-            newItemType={newItemType}
-            setNewItemType={setNewItemType}
-            newItemRequiredQty={newItemRequiredQty}
-            setNewItemRequiredQty={setNewItemRequiredQty}
-            savingProjectItem={savingProjectItem}
-            handleAddProjectItem={handleAddProjectItem}
-            selectedProjectItemId={selectedProjectItemId}
-            setSelectedProjectItemId={setSelectedProjectItemId}
-            allocationQty={allocationQty}
-            setAllocationQty={setAllocationQty}
-            handleAllocateToProject={handleAllocateToProject}
-            handleLogout={handleLogout}
-          />
-        )}
-
-        {activePage === "timesheet" && (
-          <TimesheetPage
-            session={session}
-            profile={profile}
-            currentClockIn={currentClockIn}
-            selectedProject={tsProject}
-            setSelectedProject={setTsProject}
-            selectedWorkType={tsWorkType}
-            setSelectedWorkType={setTsWorkType}
-            onClockIn={handleClockIn}
-            onClockOut={handleClockOut}
-            weekEnding={weekEnding}
-            setWeekEnding={setWeekEnding}
-            entries={timesheetEntries}
-            loadingEntries={loadingEntries}
-            totalHours={totalHours}
-            downloadTimesheet={downloadTimesheet}
-          />
-        )}
-      </main>
     </div>
   );
 };

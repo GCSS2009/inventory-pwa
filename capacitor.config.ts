@@ -2,9 +2,12 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.gcss.inventory',
-  appName: 'Inventory',
+  appName: 'GCSS',        // this is the Android “app label”
   webDir: 'dist',
-  server: { androidScheme: 'https' }
+  bundledWebRuntime: false,
+  server: {
+    androidScheme: 'https',
+  },
 };
 
 export default config;

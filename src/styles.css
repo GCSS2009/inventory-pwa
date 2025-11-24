@@ -1,3 +1,18 @@
+/* Make the whole app respect device safe areas 
+   (Z Fold, notches, status bar overlap, etc.) */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* This class wraps your whole app in App.tsx */
+.app-shell {
+  min-height: 100vh;
+  padding-top: env(safe-area-inset-top, 12px); /* fallback 12px */
+  box-sizing: border-box;
+}
+
 .app {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Inventory</string>
+    <string name="app_name">GCSS</string>
     <string name="title_activity_main">Inventory</string>
     <string name="package_name">com.gcss.inventory</string>
     <string name="custom_url_scheme">com.gcss.inventory</string>
