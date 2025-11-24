@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "../App";
+import { supabase } from "../supabaseClient";
 export function useSupabaseTable(table) {
     const [data, setData] = useState([]);
     const [error, setError] = useState(null);

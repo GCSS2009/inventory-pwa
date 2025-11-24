@@ -1,21 +1,12 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
 import * as XLSX from "xlsx";
+import { supabase } from "./supabaseClient";
 import AuthScreen from "./components/AuthScreen";
 import Sidebar from "./components/Sidebar";
 import InventoryPage from "./components/InventoryPage";
 import ProjectsPage from "./components/ProjectsPage";
 import TimesheetPage from "./components/TimesheetPage";
-// ======================
-// Supabase client
-// ======================
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn("Supabase env vars missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.");
-}
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 // ======================
 // Helpers
 // ======================
@@ -116,7 +107,9 @@ const App = () => {
     // Effects: Session & Theme
     // ======================
     useEffect(() => {
-        supabase.auth.getSession().then(({ data }) => {
+        supabase.auth
+            .getSession()
+            .then(({ data }) => {
             setSession(data.session ?? null);
         });
         const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -224,8 +217,6 @@ const App = () => {
             .select("id, created_at, user_email, role, description, model_number, from_location, to_location, quantity")
             .order("created_at", { ascending: false })
             .limit(100);
-        // If RLS is set to user-only for techs, this filter is redundant,
-        // but it keeps things explicit.
         const query = profile?.role === "admin"
             ? base
             : base.eq("user_email", profile?.email ?? "");
@@ -472,7 +463,6 @@ const App = () => {
             showToast("Error creating item: " + error.message, "error");
             return;
         }
-        // Log creation to change history (treat office qty as "new -> office")
         if (officeQty > 0) {
             await supabase.from("inventory_changes").insert({
                 user_id: session?.user.id ?? null,
@@ -773,8 +763,6 @@ const App = () => {
                     background: "var(--gcss-surface)",
                     padding: isMobile ? "0.75rem 0.5rem 1.5rem" : "1.25rem 1.5rem 2rem",
                     boxSizing: "border-box",
-                }, children: [activePage === "inventory" && (_jsx(InventoryPage, { session: session, profile: profile, inventory: inventory, loadingInventory: loadingInventory, inventoryError: inventoryError, changes: changes, loadingChanges: loadingChanges, changesError: changesError, selectedItemId: selectedItemId, setSelectedItemId: setSelectedItemId, quantity: quantity, setQuantity: setQuantity, handleAdjust: handleAdjust, handleLogout: handleLogout, 
-                        // new item props
-                        creatingItem: creatingInvItem, newItemCategory: newInvCategory, setNewItemCategory: setNewInvCategory, newItemDescription: newInvDescription, setNewItemDescription: setNewInvDescription, newItemType: newInvType, setNewItemType: setNewInvType, newItemModelNumber: newInvModelNumber, setNewItemModelNumber: setNewInvModelNumber, newItemManufacturer: newInvManufacturer, setNewItemManufacturer: setNewInvManufacturer, newItemOfficeQty: newInvOfficeQty, setNewItemOfficeQty: setNewInvOfficeQty, newItemVanQty: newInvVanQty, setNewItemVanQty: setNewInvVanQty, handleCreateItem: handleCreateInventoryItem, onRefreshHistory: loadChanges })), activePage === "projects" && (_jsx(ProjectsPage, { profile: profile, projects: projects, projectItems: projectItems, inventory: inventory, loadingProjects: loadingProjects, projectsError: projectsError, selectedProjectId: selectedProjectId, setSelectedProjectId: setSelectedProjectId, newProjectName: newProjectName, setNewProjectName: setNewProjectName, newProjectNotes: newProjectNotes, setNewProjectNotes: setNewProjectNotes, creatingProject: creatingProject, handleCreateProject: handleCreateProject, newItemDescription: newItemDescription, setNewItemDescription: setNewItemDescription, newItemModelNumber: newItemModelNumber, setNewItemModelNumber: setNewItemModelNumber, newItemType: newItemType, setNewItemType: setNewItemType, newItemRequiredQty: newItemRequiredQty, setNewItemRequiredQty: setNewItemRequiredQty, savingProjectItem: savingProjectItem, handleAddProjectItem: handleAddProjectItem, selectedProjectItemId: selectedProjectItemId, setSelectedProjectItemId: setSelectedProjectItemId, allocationQty: allocationQty, setAllocationQty: setAllocationQty, handleAllocateToProject: handleAllocateToProject, handleLogout: handleLogout })), activePage === "timesheet" && (_jsx(TimesheetPage, { session: session, profile: profile, currentClockIn: currentClockIn, selectedProject: tsProject, setSelectedProject: setTsProject, selectedWorkType: tsWorkType, setSelectedWorkType: setTsWorkType, onClockIn: handleClockIn, onClockOut: handleClockOut, weekEnding: weekEnding, setWeekEnding: setWeekEnding, entries: timesheetEntries, loadingEntries: loadingEntries, totalHours: totalHours, downloadTimesheet: downloadTimesheet }))] })] }));
+                }, children: [activePage === "inventory" && (_jsx(InventoryPage, { session: session, profile: profile, inventory: inventory, loadingInventory: loadingInventory, inventoryError: inventoryError, changes: changes, loadingChanges: loadingChanges, changesError: changesError, selectedItemId: selectedItemId, setSelectedItemId: setSelectedItemId, quantity: quantity, setQuantity: setQuantity, handleAdjust: handleAdjust, handleLogout: handleLogout, creatingItem: creatingInvItem, newItemCategory: newInvCategory, setNewItemCategory: setNewInvCategory, newItemDescription: newInvDescription, setNewItemDescription: setNewInvDescription, newItemType: newInvType, setNewItemType: setNewInvType, newItemModelNumber: newInvModelNumber, setNewItemModelNumber: setNewInvModelNumber, newItemManufacturer: newInvManufacturer, setNewItemManufacturer: setNewInvManufacturer, newItemOfficeQty: newInvOfficeQty, setNewItemOfficeQty: setNewInvOfficeQty, newItemVanQty: newInvVanQty, setNewItemVanQty: setNewInvVanQty, handleCreateItem: handleCreateInventoryItem, onRefreshHistory: loadChanges })), activePage === "projects" && (_jsx(ProjectsPage, { profile: profile, projects: projects, projectItems: projectItems, inventory: inventory, loadingProjects: loadingProjects, projectsError: projectsError, selectedProjectId: selectedProjectId, setSelectedProjectId: setSelectedProjectId, newProjectName: newProjectName, setNewProjectName: setNewProjectName, newProjectNotes: newProjectNotes, setNewProjectNotes: setNewProjectNotes, creatingProject: creatingProject, handleCreateProject: handleCreateProject, newItemDescription: newItemDescription, setNewItemDescription: setNewItemDescription, newItemModelNumber: newItemModelNumber, setNewItemModelNumber: setNewItemModelNumber, newItemType: newItemType, setNewItemType: setNewItemType, newItemRequiredQty: newItemRequiredQty, setNewItemRequiredQty: setNewItemRequiredQty, savingProjectItem: savingProjectItem, handleAddProjectItem: handleAddProjectItem, selectedProjectItemId: selectedProjectItemId, setSelectedProjectItemId: setSelectedProjectItemId, allocationQty: allocationQty, setAllocationQty: setAllocationQty, handleAllocateToProject: handleAllocateToProject, handleLogout: handleLogout })), activePage === "timesheet" && (_jsx(TimesheetPage, { session: session, profile: profile, currentClockIn: currentClockIn, selectedProject: tsProject, setSelectedProject: setTsProject, selectedWorkType: tsWorkType, setSelectedWorkType: setTsWorkType, onClockIn: handleClockIn, onClockOut: handleClockOut, weekEnding: weekEnding, setWeekEnding: setWeekEnding, entries: timesheetEntries, loadingEntries: loadingEntries, totalHours: totalHours, downloadTimesheet: downloadTimesheet }))] })] }));
 };
 export default App;

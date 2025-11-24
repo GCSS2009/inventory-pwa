@@ -1,26 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { createClient, Session } from "@supabase/supabase-js";
+import type { Session } from "@supabase/supabase-js";
 import * as XLSX from "xlsx";
+
+import { supabase } from "./supabaseClient";
 
 import AuthScreen from "./components/AuthScreen";
 import Sidebar from "./components/Sidebar";
 import InventoryPage from "./components/InventoryPage";
 import ProjectsPage from "./components/ProjectsPage";
 import TimesheetPage from "./components/TimesheetPage";
-
-// ======================
-// Supabase client
-// ======================
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn(
-    "Supabase env vars missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY."
-  );
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // ======================
 // Types
@@ -251,12 +239,14 @@ const App: React.FC = () => {
   // Effects: Session & Theme
   // ======================
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session ?? null);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data }: { data: { session: Session | null } }) => {
+        setSession(data.session ?? null);
+      });
 
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (_event: string, session: Session | null) => {
         setSession(session);
         if (!session) {
           setProfile(null);
@@ -377,8 +367,6 @@ const App: React.FC = () => {
       .order("created_at", { ascending: false })
       .limit(100);
 
-    // If RLS is set to user-only for techs, this filter is redundant,
-    // but it keeps things explicit.
     const query =
       profile?.role === "admin"
         ? base
@@ -669,7 +657,6 @@ const App: React.FC = () => {
       return;
     }
 
-    // Log creation to change history (treat office qty as "new -> office")
     if (officeQty > 0) {
       await supabase.from("inventory_changes").insert({
         user_id: session?.user.id ?? null,
@@ -1099,7 +1086,6 @@ const App: React.FC = () => {
             setQuantity={setQuantity}
             handleAdjust={handleAdjust}
             handleLogout={handleLogout}
-            // new item props
             creatingItem={creatingInvItem}
             newItemCategory={newInvCategory}
             setNewItemCategory={setNewInvCategory}
