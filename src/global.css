@@ -2,10 +2,11 @@
    GCSS THEME
    ========= */
 
-/* Light mode (default) - banner colors */
+/* Light mode (default) */
 :root {
   --gcss-bg: #f3f4f6;
   --gcss-surface: #ffffff;
+
   --gcss-sidebar-bg: #111827;
   --gcss-sidebar-text: #e5e7eb;
   --gcss-sidebar-muted: #9ca3af;
@@ -26,10 +27,11 @@
   --gcss-shadow-soft: 0 2px 8px rgba(0,0,0,0.06);
 }
 
-/* Dark mode - based on your black/navy branding */
+/* Dark mode */
 :root[data-theme="dark"] {
   --gcss-bg: #050816;
   --gcss-surface: #0f172a;
+
   --gcss-sidebar-bg: #020617;
   --gcss-sidebar-text: #e5e7eb;
   --gcss-sidebar-muted: #9ca3af;
@@ -46,23 +48,70 @@
   --gcss-shadow-soft: 0 2px 10px rgba(0,0,0,0.45);
 }
 
-html, body, #root {
+/* ===== Base resets ===== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
   margin: 0;
   padding: 0;
   height: 100%;
 }
 
 body {
-  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+    system-ui, sans-serif;
   background-color: var(--gcss-bg);
+  color: var(--gcss-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Root React wrapper */
+.app-root {
+  min-height: 100vh;
+}
+
+/* ==== APP SHELL LAYOUT ==== */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--gcss-bg);
   color: var(--gcss-text);
 }
 
-main {
-  background-color: var(--gcss-surface);
+/* Desktop: sidebar left, content right */
+.app-shell--desktop {
+  flex-direction: row;
 }
 
-/* handy utility wrappers we can gradually use later */
+/* Mobile: sidebar on top, content below */
+.app-shell--mobile {
+  flex-direction: column;
+}
+
+/* Main content grows */
+.app-shell main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Only apply safe-area padding on small screens */
+@media (max-width: 768px) {
+  .app-shell {
+    box-sizing: border-box;
+    padding-top: max(env(safe-area-inset-top, 0px), 8px);
+  }
+}
+
+/* ===== Utility wrappers ===== */
 
 .table-scroll {
   overflow-x: auto;
@@ -74,13 +123,113 @@ main {
   border-radius: var(--gcss-radius-md);
   box-shadow: var(--gcss-shadow-soft);
 }
-/* ===== Fix unreadable dropdown options in dark mode ===== */
+
+/* ===== Forms & typography ===== */
+
+h1,
+h2,
+h3,
+h4 {
+  margin-top: 0;
+  color: var(--gcss-text);
+}
+
+p,
+span,
+label,
+div {
+  color: inherit;
+}
+
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="search"],
+select,
+textarea {
+  background: var(--gcss-surface);
+  color: var(--gcss-text);
+  border: 1px solid var(--gcss-border);
+  border-radius: 4px;
+  padding: 0.35rem 0.45rem;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--gcss-text-muted);
+}
+
+button {
+  cursor: pointer;
+}
+
+/* ===== Tables ===== */
+
+.table-wrapper {
+  margin-top: 12px;
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 700px;
+}
+
+th,
+td {
+  border: 1px solid var(--gcss-border);
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+th {
+  background: rgba(148, 163, 184, 0.25);
+  text-align: left;
+  color: var(--gcss-text);
+}
+
+:root[data-theme="dark"] th {
+  background: rgba(15, 23, 42, 0.9);
+}
+
+/* Narrow screens: allow horizontal scroll */
+@media (max-width: 768px) {
+  table {
+    min-width: 520px;
+  }
+}
+
+/* ===== Dropdown fixes ===== */
+
+/* Global fix so dropdown options are readable on system popups */
 select option {
-  color: #111827 !important;  /* dark gray/black so it shows on the system popup */
-  background: #ffffff !important; /* optional; helps keep it consistent */
+  color: #111827 !important;
+  background: #ffffff !important;
 }
 
 :root[data-theme="dark"] select option {
-  color: #111827 !important;  /* still dark text even in dark mode */
+  color: #111827 !important;
   background: #ffffff !important;
+}
+
+/* Project page specific select styling */
+.projects-select,
+.projects-select option {
+  background-color: #020617 !important;
+  color: #f9fafb !important;
+}
+
+/* Light mode override for project selects */
+:root[data-theme="light"] .projects-select,
+:root[data-theme="light"] .projects-select option {
+  background-color: #ffffff !important;
+  color: #111827 !important;
 }

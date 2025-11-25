@@ -3,7 +3,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.gcss.inventory',
   appName: 'GCSS',        // this is the Android “app label”
-  webDir: 'dist',
+  webDir: 'docs',
   bundledWebRuntime: false,
   server: {
     androidScheme: 'https',

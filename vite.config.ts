@@ -5,7 +5,7 @@ import react from "@vitejs/plugin-react-swc";
 export default defineConfig({
   plugins: [react()],
   // Your GitHub Pages URL is /inventory-pwa/
-  base: "/inventory-pwa/",
+  base: "./",
   build: {
     // Build directly into /docs so GitHub Pages can serve it
     outDir: "docs",

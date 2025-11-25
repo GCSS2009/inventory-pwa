@@ -113,6 +113,8 @@ interface Toast {
   type: "success" | "error" | "info";
 }
 
+type Platform = "android_apk" | "android_web" | "ios_pwa";
+
 // ======================
 // Helpers
 // ======================
@@ -146,15 +148,18 @@ function formatRoundedTime(iso: string | null): string {
   });
 }
 
-type Platform = "android_apk" | "android_web" | "ios_pwa";
-
 function detectPlatform(): Platform {
-  const ua = navigator.userAgent.toLowerCase();
+  if (typeof window === "undefined") return "android_web";
+
+  const ua = window.navigator.userAgent.toLowerCase();
   const isStandalone =
     (window.navigator as any).standalone === true ||
     window.matchMedia("(display-mode: standalone)").matches;
 
   const isIOS = /iphone|ipad|ipod/.test(ua);
+
+  // If you ever build a special APK version, you can key off env var here
+  // if (import.meta.env.VITE_IS_APK === "true") return "android_apk";
 
   if (isStandalone && isIOS) return "ios_pwa";
   if (isStandalone) return "android_web";
@@ -182,6 +187,7 @@ const App: React.FC = () => {
 
   // ---------- Layout (mobile vs desktop) ----------
   const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // ---------- Navigation ----------
   const [activePage, setActivePage] = useState<PageKey>("inventory");
@@ -272,7 +278,7 @@ const App: React.FC = () => {
   };
 
   // ======================
-  // Effects: Session & Theme
+  // Effects: Session & Push
   // ======================
   useEffect(() => {
     supabase.auth
@@ -301,13 +307,16 @@ const App: React.FC = () => {
     };
   }, []);
 
-  // ✅ Push subscription hook at top level (rule of hooks compliant)
+  // Push subscription hook at top level (rule of hooks compliant)
   let platform: Platform = "android_web";
   if (typeof window !== "undefined") {
     platform = detectPlatform();
   }
   usePushSubscription(session?.user?.id, platform);
 
+  // ======================
+  // Effects: Theme & Layout
+  // ======================
   useEffect(() => {
     const stored = localStorage.getItem("gcss-theme");
     if (stored === "light" || stored === "dark") {
@@ -320,11 +329,26 @@ const App: React.FC = () => {
     localStorage.setItem("gcss-theme", theme);
   }, [theme]);
 
-  // Mobile layout detector
+  // Mobile layout detector – treat anything non-classic-desktop as mobile
   useEffect(() => {
     const check = () => {
-      setIsMobile(window.innerWidth <= 768);
+      if (typeof window === "undefined") return;
+
+      const ua = window.navigator.userAgent.toLowerCase();
+
+      const isWindows = ua.includes("windows nt");
+      const isMacDesktop =
+        ua.includes("macintosh") &&
+        !ua.includes("iphone") &&
+        !ua.includes("ipad");
+      const isLinuxDesktop = ua.includes("x11") || ua.includes("linux x86_64");
+
+      const isDesktopOS = isWindows || isMacDesktop || isLinuxDesktop;
+
+      const mobile = !isDesktopOS;
+      setIsMobile(mobile);
     };
+
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
@@ -861,8 +885,7 @@ const App: React.FC = () => {
 
     const matchingInventory = inventory.find(
       (i) =>
-        i.model_number.toLowerCase() ===
-        pItem.model_number.toLowerCase()
+        i.model_number.toLowerCase() === pItem.model_number.toLowerCase()
     );
 
     if (!matchingInventory) {
@@ -1112,18 +1135,58 @@ const App: React.FC = () => {
   return (
     <div className="app-root" style={{ minHeight: "100vh" }}>
       <div
-        className="app-shell"
-        style={{ display: "flex", minHeight: "100vh" }}
+        className={`app-shell ${
+          isMobile ? "app-shell--mobile" : "app-shell--desktop"
+        }`}
       >
-        <Sidebar
-          theme={theme}
-          onThemeChange={setTheme}
-          activePage={activePage}
-          onChangePage={setActivePage}
-          profile={profile}
-          isMobile={isMobile}
-          appVersion={APP_VERSION}
-        />
+        {isMobile && (
+          <header className="mobile-header">
+            <button
+              className="hamburger-btn"
+              onClick={() => setSidebarOpen((v) => !v)}
+            >
+              ☰
+            </button>
+
+            <div className="header-title">GCSS</div>
+
+            <button
+              className="theme-btn"
+              onClick={() =>
+                setTheme((prev) => (prev === "light" ? "dark" : "light"))
+              }
+            >
+              {theme === "light" ? "🌙" : "☀️"}
+            </button>
+          </header>
+        )}
+
+        {isMobile ? (
+          sidebarOpen && (
+            <Sidebar
+              theme={theme}
+              onThemeChange={setTheme}
+              activePage={activePage}
+              onChangePage={(page) => {
+                setActivePage(page);
+                setSidebarOpen(false);
+              }}
+              profile={profile}
+              isMobile={true}
+              appVersion={APP_VERSION}
+            />
+          )
+        ) : (
+          <Sidebar
+            theme={theme}
+            onThemeChange={setTheme}
+            activePage={activePage}
+            onChangePage={setActivePage}
+            profile={profile}
+            isMobile={false}
+            appVersion={APP_VERSION}
+          />
+        )}
 
         <main
           style={{
