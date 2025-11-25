@@ -5,9 +5,10 @@
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
+
     "resolveJsonModule": true,
-"esModuleInterop": true,
-"allowSyntheticDefaultImports": true
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
 
     "types": ["vite/client"],
     "skipLibCheck": true,
@@ -20,11 +21,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Interop so `import React from "react"` works */
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-
-    /* Linting */
+    /* Linting / strictness */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
