@@ -1213,7 +1213,8 @@ const App: React.FC = () => {
               setTsWorkType={setTsWorkType}
               onClockIn={handleClockIn}
               onClockOut={handleClockOut}
-              onDownloadTimesheet={handleDownloadTimesheet}
+              onDownloadTimesheet={handleDownloadTimesheet} 
+              handleLogout={handleLogout}
             />
           )}
         </main>

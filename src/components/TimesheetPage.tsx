@@ -1,7 +1,5 @@
 import React from "react";
-import type { Session } from "@supabase/supabase-js";
 
-// Keep these structurally identical to App.tsx
 type UserRole = "admin" | "tech" | "viewer";
 
 interface Profile {
@@ -30,6 +28,7 @@ interface CurrentClockIn {
 
 interface TimesheetPageProps {
   profile: Profile | null;
+
   weekEnding: string;
   setWeekEnding: (value: string) => void;
 
@@ -45,7 +44,9 @@ interface TimesheetPageProps {
 
   onClockIn: () => void | Promise<void>;
   onClockOut: () => void | Promise<void>;
-  onDownloadTimesheet: () => void | Promise<void> | void;
+  onDownloadTimesheet: () => void;
+
+  handleLogout: () => void;
 }
 
 function formatRoundedTime(iso: string | null): string {
@@ -63,15 +64,16 @@ function formatRoundedTime(iso: string | null): string {
   });
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString(undefined, {
-    month: "2-digit",
-    day: "2-digit",
-    year: "numeric",
-  });
-}
+const inputBase: React.CSSProperties = {
+  width: "100%",
+  padding: "0.4rem 0.55rem",
+  borderRadius: 4,
+  border: "1px solid var(--gcss-border, #d1d5db)",
+  background: "var(--gcss-input-bg, #ffffff)",
+  color: "var(--gcss-text, #111827)",
+  fontSize: "0.85rem",
+  boxSizing: "border-box",
+};
 
 const TimesheetPage: React.FC<TimesheetPageProps> = ({
   profile,
@@ -88,19 +90,28 @@ const TimesheetPage: React.FC<TimesheetPageProps> = ({
   onClockIn,
   onClockOut,
   onDownloadTimesheet,
+  handleLogout,
 }) => {
-  const totalHours = React.useMemo(() => {
-    return entries.reduce((sum, e) => sum + (e.hours ?? 0), 0);
-  }, [entries]);
+  const totalHours = React.useMemo(
+    () =>
+      entries.reduce((sum, e) => sum + (e.hours != null ? e.hours : 0), 0),
+    [entries]
+  );
 
-  const isClockedIn = !!currentClockIn;
+  const statusText = currentClockIn
+    ? `You are currently clocked in since ${formatRoundedTime(
+        currentClockIn.start_time
+      )}.`
+    : "You are currently clocked out.";
+
+  const statusColor = currentClockIn ? "#16a34a" : "#dc2626";
 
   return (
     <div
       style={{
-        padding: "1.25rem 1rem 1.5rem",
         maxWidth: 1200,
         margin: "0 auto",
+        padding: "1.25rem 1rem 1.5rem",
       }}
     >
       {/* Header */}
@@ -131,422 +142,338 @@ const TimesheetPage: React.FC<TimesheetPageProps> = ({
             </div>
           )}
         </div>
-      </div>
 
-      {/* Current Status */}
-      <section
-        style={{
-          border: "1px solid var(--gcss-border, #374151)",
-          borderRadius: 6,
-          padding: "0.9rem 1rem",
-          marginBottom: "1.25rem",
-          background: "var(--gcss-surface, #020617)",
-        }}
-      >
-        <h2 style={{ marginTop: 0, fontSize: "1rem", marginBottom: "0.35rem" }}>
-          Current status
-        </h2>
-        <div
+        <button
+          onClick={handleLogout}
           style={{
-            fontSize: "0.9rem",
-            marginBottom: "0.75rem",
-            color: "var(--gcss-muted, #9ca3af)",
+            padding: "0.35rem 0.85rem",
+            borderRadius: 999,
+            border: "none",
+            background: "#dc2626",
+            color: "#fef2f2",
+            cursor: "pointer",
+            fontSize: "0.8rem",
+            fontWeight: 600,
           }}
         >
-          {isClockedIn ? (
+          Logout
+        </button>
+      </div>
+
+      {/* Current status */}
+      <div
+        style={{
+          border: "1px solid var(--gcss-border, #d1d5db)",
+          borderRadius: 6,
+          padding: "1rem 1.25rem",
+          marginBottom: "1rem",
+          background: "var(--gcss-surface, #ffffff)",
+        }}
+      >
+        <h2 style={{ marginTop: 0, fontSize: "1rem" }}>Current status</h2>
+        <div
+          style={{
+            fontSize: "0.95rem",
+            marginBottom: "0.75rem",
+          }}
+        >
+          You are currently{" "}
+          <span style={{ color: statusColor, fontWeight: 600 }}>
+            {currentClockIn ? "clocked in" : "clocked out"}
+          </span>
+          {currentClockIn && (
             <>
-              You are currently{" "}
-              <span style={{ color: "#22c55e", fontWeight: 600 }}>
-                clocked in
-              </span>{" "}
+              {" "}
               since{" "}
-              <strong>
-                {formatRoundedTime(currentClockIn?.start_time ?? null)}
-              </strong>
-              .
-            </>
-          ) : (
-            <>
-              You are currently{" "}
-              <span style={{ color: "#ef4444", fontWeight: 600 }}>
-                clocked out.
+              <span style={{ fontWeight: 600 }}>
+                {formatRoundedTime(currentClockIn.start_time)}
               </span>
+              .
             </>
           )}
         </div>
 
         <div
           style={{
-            display: "flex",
-            flexWrap: "wrap",
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 2fr) minmax(0, 1.4fr) auto",
             gap: "0.75rem",
-            alignItems: "center",
+            alignItems: "end",
           }}
         >
-          {!isClockedIn && (
-            <button
-              type="button"
-              onClick={() => void onClockIn()}
+          <div>
+            <label
               style={{
-                padding: "0.5rem 1.1rem",
-                borderRadius: 999,
-                border: "none",
-                background: "#22c55e",
-                color: "#022c22",
-                fontWeight: 600,
-                cursor: "pointer",
-                fontSize: "0.9rem",
+                display: "block",
+                fontSize: "0.85rem",
+                marginBottom: "0.25rem",
               }}
             >
-              Clock In
-            </button>
-          )}
+              Project / Location
+            </label>
+            <input
+              type="text"
+              value={tsProject}
+              onChange={(e) => setTsProject(e.target.value)}
+              placeholder="e.g. Lake Forest, Office, etc."
+              style={inputBase}
+            />
+          </div>
 
-          {isClockedIn && (
-            <>
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "0.75rem",
-                  flex: 1,
-                  minWidth: 260,
-                }}
-              >
-                <div style={{ minWidth: 180 }}>
-                  <label
-                    style={{
-                      display: "block",
-                      fontSize: "0.8rem",
-                      marginBottom: "0.25rem",
-                    }}
-                  >
-                    Project / Location
-                  </label>
-                  <input
-                    type="text"
-                    value={tsProject}
-                    onChange={(e) => setTsProject(e.target.value)}
-                    placeholder="e.g. Lake Forest, Office, etc."
-                    style={{
-                      width: "100%",
-                      padding: "0.4rem 0.55rem",
-                      borderRadius: 4,
-                      border: "1px solid var(--gcss-border, #4b5563)",
-                      background: "var(--gcss-input-bg, #020617)",
-                      color: "var(--gcss-text, #e5e7eb)",
-                      fontSize: "0.85rem",
-                    }}
-                  />
-                </div>
+          <div>
+            <label
+              style={{
+                display: "block",
+                fontSize: "0.85rem",
+                marginBottom: "0.25rem",
+              }}
+            >
+              Work type
+            </label>
+            <select
+              value={tsWorkType}
+              onChange={(e) => setTsWorkType(e.target.value)}
+              style={inputBase}
+            >
+              <option value="Install">Install</option>
+              <option value="Service">Service</option>
+              <option value="Programming">Programming</option>
+              <option value="Office">Office</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
 
-                <div style={{ minWidth: 150 }}>
-                  <label
-                    style={{
-                      display: "block",
-                      fontSize: "0.8rem",
-                      marginBottom: "0.25rem",
-                    }}
-                  >
-                    Work type
-                  </label>
-                  <select
-                    value={tsWorkType}
-                    onChange={(e) => setTsWorkType(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "0.4rem 0.55rem",
-                      borderRadius: 4,
-                      border: "1px solid var(--gcss-border, #4b5563)",
-                      background: "var(--gcss-input-bg, #020617)",
-                      color: "var(--gcss-text, #e5e7eb)",
-                      fontSize: "0.85rem",
-                    }}
-                  >
-                    <option value="Install">Install</option>
-                    <option value="Service">Service</option>
-                    <option value="Programming">Programming</option>
-                    <option value="Office">Office</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-              </div>
-
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            {currentClockIn ? (
               <button
                 type="button"
-                onClick={() => void onClockOut()}
+                onClick={onClockOut}
                 style={{
-                  padding: "0.5rem 1.1rem",
+                  padding: "0.55rem 1.3rem",
                   borderRadius: 999,
                   border: "none",
-                  background: "#ef4444",
+                  background: "#dc2626",
                   color: "#fef2f2",
                   fontWeight: 600,
                   cursor: "pointer",
                   fontSize: "0.9rem",
+                  whiteSpace: "nowrap",
+                  alignSelf: "flex-end",
                 }}
               >
                 Clock Out
               </button>
-            </>
-          )}
+            ) : (
+              <button
+                type="button"
+                onClick={onClockIn}
+                style={{
+                  padding: "0.55rem 1.3rem",
+                  borderRadius: 999,
+                  border: "none",
+                  background: "#16a34a",
+                  color: "#f0fdf4",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  fontSize: "0.9rem",
+                  whiteSpace: "nowrap",
+                  alignSelf: "flex-end",
+                }}
+              >
+                Clock In
+              </button>
+            )}
+          </div>
         </div>
-      </section>
+      </div>
 
-      {/* Weekly Timesheet */}
-      <section
+      {/* Weekly timesheet */}
+      <div
         style={{
-          border: "1px solid var(--gcss-border, #374151)",
+          border: "1px solid var(--gcss-border, #d1d5db)",
           borderRadius: 6,
-          padding: "0.9rem 1rem",
-          marginBottom: "1.25rem",
-          background: "var(--gcss-surface, #020617)",
+          padding: "1rem 1.25rem",
+          marginBottom: "1.5rem",
+          background: "var(--gcss-surface, #ffffff)",
         }}
       >
         <div
           style={{
             display: "flex",
-            flexWrap: "wrap",
-            gap: "0.75rem",
-            alignItems: "center",
             justifyContent: "space-between",
-            marginBottom: "0.5rem",
+            alignItems: "center",
+            gap: "1rem",
+            flexWrap: "wrap",
           }}
         >
           <div>
-            <h2
-              style={{
-                marginTop: 0,
-                marginBottom: "0.3rem",
-                fontSize: "1rem",
-              }}
-            >
+            <h2 style={{ marginTop: 0, marginBottom: "0.25rem", fontSize: "1rem" }}>
               Weekly Timesheet
             </h2>
             <div
               style={{
-                fontSize: "0.85rem",
-                color: "var(--gcss-muted, #9ca3af)",
+                fontSize: "0.9rem",
+                color: "var(--gcss-muted, #6b7280)",
               }}
             >
               Total hours for selected week:{" "}
-              <strong>{totalHours.toFixed(2)}</strong>
+              <span style={{ fontWeight: 600 }}>{totalHours.toFixed(2)}</span>
             </div>
           </div>
 
           <div
             style={{
               display: "flex",
-              flexWrap: "wrap",
               gap: "0.75rem",
               alignItems: "center",
+              flexWrap: "wrap",
             }}
           >
             <div>
-              <label
+              <div
                 style={{
-                  display: "block",
                   fontSize: "0.8rem",
                   marginBottom: "0.25rem",
                 }}
               >
                 Week ending (Sunday)
-              </label>
+              </div>
               <input
                 type="date"
                 value={weekEnding}
                 onChange={(e) => setWeekEnding(e.target.value)}
-                style={{
-                  padding: "0.35rem 0.6rem",
-                  borderRadius: 4,
-                  border: "1px solid var(--gcss-border, #4b5563)",
-                  background: "var(--gcss-input-bg, #020617)",
-                  color: "var(--gcss-text, #e5e7eb)",
-                  fontSize: "0.85rem",
-                }}
+                style={inputBase}
               />
             </div>
 
             <button
               type="button"
-              onClick={() => void onDownloadTimesheet()}
+              onClick={onDownloadTimesheet}
               style={{
-                alignSelf: "flex-end",
-                padding: "0.5rem 1.1rem",
+                padding: "0.55rem 1.25rem",
                 borderRadius: 999,
                 border: "none",
                 background: "#2563eb",
-                color: "#eff6ff",
+                color: "white",
                 fontWeight: 600,
                 cursor: "pointer",
-                fontSize: "0.85rem",
+                fontSize: "0.9rem",
+                whiteSpace: "nowrap",
               }}
             >
               Download GCSS Timesheet
             </button>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Entries */}
-      <section>
-        <h2
+      {/* Error */}
+      {error && (
+        <div
           style={{
-            fontSize: "1rem",
-            marginBottom: "0.5rem",
+            marginBottom: "0.75rem",
+            color: "#dc2626",
+            fontSize: "0.85rem",
           }}
         >
+          {error}
+        </div>
+      )}
+
+      {/* Entries table */}
+      <div>
+        <h2 style={{ fontSize: "1rem", marginBottom: "0.5rem" }}>
           Entries for selected week
         </h2>
 
-        {error && (
-          <div
-            style={{
-              marginBottom: "0.5rem",
-              color: "#f97316",
-              fontSize: "0.85rem",
-            }}
-          >
-            {error}
-          </div>
-        )}
-
         {loadingEntries ? (
           <div>Loading entries…</div>
-        ) : entries.length === 0 ? (
+        ) : !entries.length ? (
           <div
             style={{
               fontSize: "0.9rem",
-              color: "var(--gcss-muted, #9ca3af)",
+              color: "var(--gcss-muted, #6b7280)",
             }}
           >
-            No entries found for this week.
+            No entries for this week.
           </div>
         ) : (
-          <div
-            style={{
-              border: "1px solid var(--gcss-border, #374151)",
-              borderRadius: 6,
-              overflow: "hidden",
-              background: "var(--gcss-surface, #020617)",
-            }}
-          >
-            <div style={{ overflowX: "auto" }}>
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  fontSize: "0.85rem",
-                }}
-              >
-                <thead>
-                  <tr>
-                    {[
-                      "Date",
-                      "Project / Location",
-                      "Type",
-                      "Clock in",
-                      "Clock out",
-                      "Hours",
-                    ].map((label) => (
-                      <th
-                        key={label}
-                        style={{
-                          position: "sticky",
-                          top: 0,
-                          background:
-                            "var(--gcss-surface-strong, #020617)",
-                          color: "var(--gcss-on-surface, #e5e7eb)",
-                          fontWeight: 600,
-                          padding: "0.45rem 0.6rem",
-                          borderBottom:
-                            "1px solid var(--gcss-border, #4b5563)",
-                          textAlign:
-                            label === "Hours" ? "right" : "left",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {label}
-                      </th>
-                    ))}
+          <div style={{ overflowX: "auto" }}>
+            <table
+              style={{
+                width: "100%",
+                minWidth: 720,
+                borderCollapse: "collapse",
+                fontSize: "0.85rem",
+              }}
+            >
+              <thead>
+                <tr>
+                  <th style={thStyleLeft}>Date</th>
+                  <th style={thStyleLeft}>Project / Location</th>
+                  <th style={thStyleLeft}>Type</th>
+                  <th style={thStyleLeft}>Clock in</th>
+                  <th style={thStyleLeft}>Clock out</th>
+                  <th style={thStyleRight}>Hours</th>
+                </tr>
+              </thead>
+              <tbody>
+                {entries.map((e) => (
+                  <tr key={e.id}>
+                    <td style={tdStyle}>
+                      {e.work_date ||
+                        new Date(e.created_at).toLocaleDateString()}
+                    </td>
+                    <td style={tdStyle}>{e.project ?? ""}</td>
+                    <td style={tdStyle}>{e.work_type ?? ""}</td>
+                    <td style={tdStyle}>{formatRoundedTime(e.clock_in)}</td>
+                    <td style={tdStyle}>{formatRoundedTime(e.clock_out)}</td>
+                    <td style={tdStyleRight}>
+                      {e.hours != null ? e.hours.toFixed(2) : "0.00"}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {entries.map((entry) => (
-                    <tr key={entry.id}>
-                      <td
-                        style={{
-                          padding: "0.35rem 0.6rem",
-                          borderBottom:
-                            "1px solid var(--gcss-border, #111827)",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {formatDate(entry.work_date)}
-                      </td>
-                      <td
-                        style={{
-                          padding: "0.35rem 0.6rem",
-                          borderBottom:
-                            "1px solid var(--gcss-border, #111827)",
-                          minWidth: 140,
-                        }}
-                      >
-                        {entry.project ?? ""}
-                      </td>
-                      <td
-                        style={{
-                          padding: "0.35rem 0.6rem",
-                          borderBottom:
-                            "1px solid var(--gcss-border, #111827)",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {entry.work_type ?? ""}
-                      </td>
-                      <td
-                        style={{
-                          padding: "0.35rem 0.6rem",
-                          borderBottom:
-                            "1px solid var(--gcss-border, #111827)",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {formatRoundedTime(entry.clock_in)}
-                      </td>
-                      <td
-                        style={{
-                          padding: "0.35rem 0.6rem",
-                          borderBottom:
-                            "1px solid var(--gcss-border, #111827)",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {formatRoundedTime(entry.clock_out)}
-                      </td>
-                      <td
-                        style={{
-                          padding: "0.35rem 0.6rem",
-                          borderBottom:
-                            "1px solid var(--gcss-border, #111827)",
-                          textAlign: "right",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {entry.hours != null
-                          ? entry.hours.toFixed(2)
-                          : ""}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
-      </section>
+      </div>
     </div>
   );
+};
+
+const thStyleBase: React.CSSProperties = {
+  borderBottom: "1px solid var(--gcss-border, #d1d5db)",
+  padding: "0.4rem 0.55rem",
+  background: "rgba(148,163,184,0.25)",
+  color: "var(--gcss-text, #111827)",
+  textAlign: "left",
+};
+
+const thStyleLeft: React.CSSProperties = {
+  ...thStyleBase,
+  textAlign: "left",
+};
+
+const thStyleRight: React.CSSProperties = {
+  ...thStyleBase,
+  textAlign: "right",
+};
+
+const tdStyle: React.CSSProperties = {
+  borderBottom: "1px solid var(--gcss-border, #e5e7eb)",
+  padding: "0.35rem 0.55rem",
+  whiteSpace: "nowrap",
+};
+
+const tdStyleRight: React.CSSProperties = {
+  ...tdStyle,
+  textAlign: "right",
 };
 
 export default TimesheetPage;
