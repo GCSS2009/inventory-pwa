@@ -74,3 +74,13 @@ main {
   border-radius: var(--gcss-radius-md);
   box-shadow: var(--gcss-shadow-soft);
 }
+/* ===== Fix unreadable dropdown options in dark mode ===== */
+select option {
+  color: #111827 !important;  /* dark gray/black so it shows on the system popup */
+  background: #ffffff !important; /* optional; helps keep it consistent */
+}
+
+:root[data-theme="dark"] select option {
+  color: #111827 !important;  /* still dark text even in dark mode */
+  background: #ffffff !important;
+}
