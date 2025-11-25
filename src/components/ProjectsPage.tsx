@@ -289,6 +289,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
             Select project
           </label>
           <select
+            className="projects-select"
             value={selectedProjectId}
             onChange={(e) => {
               setSelectedProjectId(e.target.value);
@@ -301,8 +302,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
               borderRadius: 4,
               border: "1px solid var(--gcss-border, #d1d5db)",
               fontSize: "0.85rem",
-              background: "var(--gcss-input-bg, #ffffff)",
-              color: "var(--gcss-text, #111827)",
+
             }}
           >
             <option
@@ -634,6 +634,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
                     Project item
                   </label>
                   <select
+                    className="projects-select"
                     value={
                       selectedProjectItemId === ""
                         ? ""
@@ -650,8 +651,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
                       borderRadius: 4,
                       border: "1px solid var(--gcss-border, #d1d5db)",
                       fontSize: "0.85rem",
-                      background: "var(--gcss-input-bg, #ffffff)",
-                      color: "var(--gcss-text, #111827)",
+                      
                     }}
                   >
                     <option
