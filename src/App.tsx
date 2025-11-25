@@ -156,6 +156,36 @@ const App: React.FC = () => {
   const [authPassword, setAuthPassword] = useState("");
   const [authError, setAuthError] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault(); // <- this is crucial
+  setAuthError(null);
+  setAuthLoading(true);
+
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: authEmail,
+      password: authPassword,
+    });
+
+    if (error) {
+      console.error("Login error:", error);
+      setAuthError(error.message);
+      showToast("Login failed: " + error.message, "error");
+    } else if (data.session) {
+      setSession(data.session);
+      showToast("Logged in successfully.", "success");
+    } else {
+      setAuthError("Login failed. No session returned.");
+      showToast("Login failed: no session returned.", "error");
+    }
+  } catch (err) {
+    console.error("Unexpected login error:", err);
+    setAuthError("Unexpected error during login.");
+    showToast("Unexpected error during login.", "error");
+  } finally {
+    setAuthLoading(false);
+  }
+};
 
   // ---------- Profile ----------
   const [profile, setProfile] = useState<Profile | null>(null);

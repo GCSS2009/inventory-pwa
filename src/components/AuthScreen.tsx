@@ -2,52 +2,24 @@
 import React from "react";
 
 interface AuthScreenProps {
-  authEmail: string;
-  setAuthEmail: (value: string) => void;
-  authPassword: string;
-  setAuthPassword: (value: string) => void;
-  handleLogin: (e: React.FormEvent<HTMLFormElement>) => void | Promise<void>;
-  authError: string | null;
-  authLoading: boolean;
+  email: string;
+  password: string;
+  onEmailChange: (value: string) => void;
+  onPasswordChange: (value: string) => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  loading: boolean;
+  error: string | null;
 }
 
 const AuthScreen: React.FC<AuthScreenProps> = ({
-  authEmail,
-  setAuthEmail,
-  authPassword,
-  setAuthPassword,
-  handleLogin,
-  authError,
-  authLoading,
+  email,
+  password,
+  onEmailChange,
+  onPasswordChange,
+  onSubmit,
+  loading,
+  error,
 }) => {
-  const cardStyle: React.CSSProperties = {
-    background: "var(--gcss-surface)",
-    padding: "1.75rem 2.25rem",
-    borderRadius: 10,
-    boxShadow: "0 10px 30px rgba(15,23,42,0.35)",
-    minWidth: 320,
-    maxWidth: 380,
-    border: "1px solid var(--gcss-border, #1f2933)",
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: "block",
-    fontSize: "0.8rem",
-    marginBottom: "0.2rem",
-    fontWeight: 500,
-  };
-
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "0.5rem 0.6rem",
-    borderRadius: 4,
-    border: "1px solid var(--gcss-border, #4b5563)",
-    background: "var(--gcss-bg)",
-    color: "var(--gcss-text)",
-    fontSize: "0.9rem",
-    outline: "none",
-  };
-
   return (
     <div
       style={{
@@ -55,111 +27,142 @@ const AuthScreen: React.FC<AuthScreenProps> = ({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "var(--gcss-bg)",
-        color: "var(--gcss-text)",
-        fontFamily:
-          '"Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif',
+        background: "var(--gcss-surface, #020617)",
+        color: "var(--gcss-on-surface, #e5e7eb)",
+        padding: "1.5rem",
       }}
     >
-      <form onSubmit={handleLogin} style={cardStyle}>
-        <div style={{ marginBottom: "1rem" }}>
-          <h2
-            style={{
-              margin: 0,
-              fontSize: "1.35rem",
-              fontWeight: 650,
-              letterSpacing: "0.02em",
-            }}
-          >
-            GCSS Technician
-          </h2>
-          <div
-            style={{
-              marginTop: "0.25rem",
-              fontSize: "0.8rem",
-              color: "#9ca3af",
-            }}
-          >
-            Sign in with your company credentials.
-          </div>
-        </div>
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 380,
+          padding: "1.5rem 1.75rem",
+          borderRadius: 12,
+          border: "1px solid rgba(148,163,184,0.4)",
+          background:
+            "radial-gradient(circle at top, rgba(37,99,235,0.35), transparent 60%), rgba(15,23,42,0.95)",
+          boxShadow: "0 18px 45px rgba(15,23,42,0.9)",
+        }}
+      >
+        <h1
+          style={{
+            margin: 0,
+            marginBottom: "0.75rem",
+            fontSize: "1.35rem",
+            fontWeight: 700,
+          }}
+        >
+          GCSS Inventory
+        </h1>
+        <p
+          style={{
+            margin: 0,
+            marginBottom: "1.25rem",
+            fontSize: "0.85rem",
+            color: "var(--gcss-muted, #9ca3af)",
+          }}
+        >
+          Sign in with your GCSS credentials to continue.
+        </p>
 
-        {authError && (
+        {error && (
           <div
             style={{
-              marginBottom: "0.9rem",
-              padding: "0.5rem 0.6rem",
-              borderRadius: 4,
-              background: "rgba(220,38,38,0.1)",
-              border: "1px solid rgba(220,38,38,0.6)",
-              color: "#fecaca",
+              marginBottom: "0.75rem",
               fontSize: "0.8rem",
+              padding: "0.5rem 0.6rem",
+              borderRadius: 6,
+              background: "rgba(239,68,68,0.12)",
+              color: "#fecaca",
+              border: "1px solid rgba(239,68,68,0.6)",
             }}
           >
-            {authError}
+            {error}
           </div>
         )}
 
-        <div style={{ marginBottom: "0.75rem" }}>
-          <label style={labelStyle} htmlFor="gcss-email">
-            Email
-          </label>
-          <input
-            id="gcss-email"
-            type="email"
-            value={authEmail}
-            onChange={(e) => setAuthEmail(e.target.value)}
-            required
-            autoComplete="email"
-            style={inputStyle}
-          />
-        </div>
+        <form onSubmit={onSubmit} noValidate>
+          <div style={{ marginBottom: "0.75rem" }}>
+            <label
+              htmlFor="email"
+              style={{
+                display: "block",
+                fontSize: "0.8rem",
+                marginBottom: "0.25rem",
+              }}
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => onEmailChange(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "0.45rem 0.55rem",
+                borderRadius: 6,
+                border: "1px solid rgba(148,163,184,0.7)",
+                background: "rgba(15,23,42,0.9)",
+                color: "var(--gcss-on-surface, #e5e7eb)",
+                fontSize: "0.85rem",
+              }}
+              required
+            />
+          </div>
 
-        <div style={{ marginBottom: "1rem" }}>
-          <label style={labelStyle} htmlFor="gcss-password">
-            Password
-          </label>
-          <input
-            id="gcss-password"
-            type="password"
-            value={authPassword}
-            onChange={(e) => setAuthPassword(e.target.value)}
-            required
-            autoComplete="current-password"
-            style={inputStyle}
-          />
-        </div>
+          <div style={{ marginBottom: "1rem" }}>
+            <label
+              htmlFor="password"
+              style={{
+                display: "block",
+                fontSize: "0.8rem",
+                marginBottom: "0.25rem",
+              }}
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => onPasswordChange(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "0.45rem 0.55rem",
+                borderRadius: 6,
+                border: "1px solid rgba(148,163,184,0.7)",
+                background: "rgba(15,23,42,0.9)",
+                color: "var(--gcss-on-surface, #e5e7eb)",
+                fontSize: "0.85rem",
+              }}
+              required
+            />
+          </div>
 
-        <button
-          type="submit"
-          disabled={authLoading}
-          style={{
-            width: "100%",
-            padding: "0.55rem 0.75rem",
-            borderRadius: 4,
-            border: "none",
-            background: authLoading ? "#4b5563" : "#0062ff",
-            color: "white",
-            cursor: authLoading ? "default" : "pointer",
-            fontWeight: 600,
-            fontSize: "0.95rem",
-            transition: "background 0.15s ease, transform 0.05s ease",
-          }}
-        >
-          {authLoading ? "Logging in…" : "Login"}
-        </button>
-
-        <div
-          style={{
-            marginTop: "0.6rem",
-            fontSize: "0.7rem",
-            color: "#6b7280",
-            textAlign: "center",
-          }}
-        >
-          Access restricted to Gulf Coast Special Systems personnel.
-        </div>
-      </form>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: "100%",
+              padding: "0.5rem 0.75rem",
+              borderRadius: 999,
+              border: "none",
+              background: loading
+                ? "rgba(37,99,235,0.6)"
+                : "rgba(37,99,235,0.95)",
+              color: "#e5e7eb",
+              fontWeight: 600,
+              fontSize: "0.9rem",
+              cursor: loading ? "default" : "pointer",
+            }}
+          >
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
