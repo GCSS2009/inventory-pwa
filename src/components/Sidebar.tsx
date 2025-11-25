@@ -12,14 +12,15 @@ interface Profile {
 }
 
 interface SidebarProps {
-  activePage: PageKey;
-  setActivePage: (page: PageKey) => void;
   theme: "light" | "dark";
-  setTheme: React.Dispatch<React.SetStateAction<"light" | "dark">>;
+  onThemeChange: (theme: "light" | "dark") => void;
+  activePage: "inventory" | "projects" | "timesheet";
+  onChangePage: (page: "inventory" | "projects" | "timesheet") => void;
   profile: Profile | null;
-  session: Session | null;
   isMobile: boolean;
+  appVersion: string;
 }
+
 
 const Sidebar: React.FC<SidebarProps> = ({
   activePage,
@@ -146,6 +147,18 @@ const Sidebar: React.FC<SidebarProps> = ({
         >
           Theme: {theme === "light" ? "Light" : "Dark"}
         </button>
+        <div
+  style={{
+    marginTop: "auto",
+    fontSize: "0.7rem",
+    color: "var(--gcss-muted, #9ca3af)",
+    paddingTop: "0.75rem",
+  }}
+>
+  <div>GCSS Inventory</div>
+  <div>v{appVersion}</div>
+</div>
+
 
         <div
           style={{

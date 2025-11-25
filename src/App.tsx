@@ -10,7 +10,7 @@ import InventoryPage from "./components/InventoryPage";
 import ProjectsPage from "./components/ProjectsPage";
 import TimesheetPage from "./components/TimesheetPage";
 
-const APP_VERSION = "1.0.0"; // bump this when you ship
+import { APP_VERSION } from "./version";
 
 // ======================
 // Types
@@ -82,7 +82,6 @@ interface TimesheetRow {
   clock_out: string | null;
 }
 
-// NOTE: extended so we keep work_date + clock times
 interface TimesheetEntry {
   id: number;
   created_at: string;
@@ -724,9 +723,7 @@ const App: React.FC = () => {
   // ======================
   // Project Handlers
   // ======================
-  const handleCreateProject = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleCreateProject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newProjectName.trim()) return;
 
@@ -832,7 +829,6 @@ const App: React.FC = () => {
       return;
     }
 
-    // Adjust inventory
     let newOffice = matchingInventory.office_qty;
     let newVan = matchingInventory.van_qty;
 
@@ -1073,15 +1069,14 @@ const App: React.FC = () => {
     <div className="app-root" style={{ minHeight: "100vh" }}>
       <div className="app-shell" style={{ display: "flex", minHeight: "100vh" }}>
         <Sidebar
-  theme={theme}
-  onThemeChange={setTheme}
-  activePage={activePage}
-  onChangePage={setActivePage}
-  profile={profile}
-  isMobile={isMobile}
-  appVersion={APP_VERSION}
-/>
-
+          theme={theme}
+          onThemeChange={setTheme}
+          activePage={activePage}
+          onChangePage={setActivePage}
+          profile={profile}
+          isMobile={isMobile}
+          appVersion={APP_VERSION}
+        />
 
         <main
           style={{
