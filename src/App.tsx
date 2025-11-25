@@ -1162,37 +1162,37 @@ const App: React.FC = () => {
 
           {activePage === "projects" && (
             <ProjectsPage
-              projects={projects}
-              profile={profile}
-              projectItems={projectItems}
-              inventory={inventory}
-              loadingProjects={loadingProjects}
-              projectsError={projectsError}
-              selectedProjectId={selectedProjectId}
-              setSelectedProjectId={setSelectedProjectId}
-              newProjectName={newProjectName}
-              setNewProjectName={setNewProjectName}
-              newProjectNotes={newProjectNotes}
-              setNewProjectNotes={setNewProjectNotes}
-              creatingProject={creatingProject}
-              handleCreateProject={handleCreateProject}
-              newItemDescription={newItemDescription}
-              setNewItemDescription={setNewItemDescription}
-              newItemModelNumber={newItemModelNumber}
-              setNewItemModelNumber={setNewItemModelNumber}
-              newItemType={newItemType}
-              setNewItemType={setNewItemType}
-              newItemRequiredQty={newItemRequiredQty}
-              setNewItemRequiredQty={setNewItemRequiredQty}
-              savingProjectItem={savingProjectItem}
-              handleAddProjectItem={handleAddProjectItem}
-              selectedProjectItemId={selectedProjectItemId}
-              setSelectedProjectItemId={setSelectedProjectItemId}
-              allocationQty={allocationQty}
-              setAllocationQty={setAllocationQty}
-              handleAllocateToProject={handleAllocateToProject}
-              handleLogout={handleLogout}
-              reloadAll={() =>
+                profile={profile}
+    projects={projects}
+    projectItems={projectItems}
+    inventory={inventory}
+    loadingProjects={loadingProjects}
+    projectsError={projectsError}
+    selectedProjectId={selectedProjectId}
+    setSelectedProjectId={setSelectedProjectId}
+    newProjectName={newProjectName}
+    setNewProjectName={setNewProjectName}
+    newProjectNotes={newProjectNotes}
+    setNewProjectNotes={setNewProjectNotes}
+    creatingProject={creatingProject}
+    handleCreateProject={handleCreateProject}
+    newItemDescription={newItemDescription}
+    setNewItemDescription={setNewItemDescription}
+    newItemModelNumber={newItemModelNumber}
+    setNewItemModelNumber={setNewItemModelNumber}
+    newItemType={newItemType}
+    setNewItemType={setNewItemType}
+    newItemRequiredQty={newItemRequiredQty}
+    setNewItemRequiredQty={setNewItemRequiredQty}
+    savingProjectItem={savingProjectItem}
+    handleAddProjectItem={handleAddProjectItem}
+    selectedProjectItemId={selectedProjectItemId}
+    setSelectedProjectItemId={setSelectedProjectItemId}
+    allocationQty={allocationQty}
+    setAllocationQty={setAllocationQty}
+    handleAllocateToProject={handleAllocateToProject}
+    handleLogout={handleLogout}
+    reloadAll={() =>
                 Promise.all([loadProjectsAndItems(), loadInventory()])
               }
             />
