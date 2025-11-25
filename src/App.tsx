@@ -520,35 +520,49 @@ const App: React.FC = () => {
   // Auth Handlers
   // ======================
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setAuthError(null);
-    setAuthLoading(true);
+  e.preventDefault();
+  setAuthError(null);
+  setAuthLoading(true);
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: authEmail,
-        password: authPassword,
-      });
+  console.log("[Auth] Starting login with:", authEmail);
 
-      if (error) {
-        console.error("Login error:", error);
-        setAuthError(error.message);
-        showToast("Login failed: " + error.message, "error");
-      } else if (data.session) {
-        setSession(data.session);
-        showToast("Logged in successfully.", "success");
-      } else {
-        setAuthError("Login failed. No session returned.");
-        showToast("Login failed: no session returned.", "error");
-      }
-    } catch (err) {
-      console.error("Unexpected login error:", err);
-      setAuthError("Unexpected error during login.");
-      showToast("Unexpected error during login.", "error");
-    } finally {
-      setAuthLoading(false);
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: authEmail,
+      password: authPassword,
+    });
+
+    console.log("[Auth] Supabase response:", { data, error });
+
+    if (error) {
+      console.error("[Auth] Login error:", error);
+      setAuthError(error.message);
+      showToast("Login failed: " + error.message, "error");
+
+      // Absolutely impossible to miss now
+      alert("Login failed: " + error.message);
+    } else if (data.session) {
+      console.log("[Auth] Login success, got session:", data.session);
+      setSession(data.session);
+      showToast("Logged in successfully.", "success");
+    } else {
+      console.error("[Auth] No session returned from Supabase");
+      const msg = "Login failed: no session returned from Supabase.";
+      setAuthError(msg);
+      showToast(msg, "error");
+      alert(msg);
     }
-  };
+  } catch (err) {
+    console.error("[Auth] Unexpected login error:", err);
+    const msg = "Unexpected error during login. See console for details.";
+    setAuthError(msg);
+    showToast(msg, "error");
+    alert(msg);
+  } finally {
+    setAuthLoading(false);
+  }
+};
+
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
