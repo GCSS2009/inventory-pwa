@@ -9,6 +9,7 @@ import Sidebar from "./components/Sidebar";
 import InventoryPage from "./components/InventoryPage";
 import ProjectsPage from "./components/ProjectsPage";
 import TimesheetPage from "./components/TimesheetPage";
+import { usePushSubscription } from "./hooks/usePushSubscription";
 
 import { APP_VERSION } from "./version";
 
@@ -143,6 +144,21 @@ function formatRoundedTime(iso: string | null): string {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+type Platform = "android_apk" | "android_web" | "ios_pwa";
+
+function detectPlatform(): Platform {
+  const ua = navigator.userAgent.toLowerCase();
+  const isStandalone =
+    (window.navigator as any).standalone === true ||
+    window.matchMedia("(display-mode: standalone)").matches;
+
+  const isIOS = /iphone|ipad|ipod/.test(ua);
+
+  if (isStandalone && isIOS) return "ios_pwa";
+  if (isStandalone) return "android_web";
+  return "android_web";
 }
 
 // ======================
@@ -284,6 +300,13 @@ const App: React.FC = () => {
       listener.subscription.unsubscribe();
     };
   }, []);
+
+  // ✅ Push subscription hook at top level (rule of hooks compliant)
+  let platform: Platform = "android_web";
+  if (typeof window !== "undefined") {
+    platform = detectPlatform();
+  }
+  usePushSubscription(session?.user?.id, platform);
 
   useEffect(() => {
     const stored = localStorage.getItem("gcss-theme");
@@ -520,49 +543,46 @@ const App: React.FC = () => {
   // Auth Handlers
   // ======================
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  setAuthError(null);
-  setAuthLoading(true);
+    e.preventDefault();
+    setAuthError(null);
+    setAuthLoading(true);
 
-  console.log("[Auth] Starting login with:", authEmail);
+    console.log("[Auth] Starting login with:", authEmail);
 
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: authEmail,
-      password: authPassword,
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: authEmail,
+        password: authPassword,
+      });
 
-    console.log("[Auth] Supabase response:", { data, error });
+      console.log("[Auth] Supabase response:", { data, error });
 
-    if (error) {
-      console.error("[Auth] Login error:", error);
-      setAuthError(error.message);
-      showToast("Login failed: " + error.message, "error");
-
-      // Absolutely impossible to miss now
-      alert("Login failed: " + error.message);
-    } else if (data.session) {
-      console.log("[Auth] Login success, got session:", data.session);
-      setSession(data.session);
-      showToast("Logged in successfully.", "success");
-    } else {
-      console.error("[Auth] No session returned from Supabase");
-      const msg = "Login failed: no session returned from Supabase.";
+      if (error) {
+        console.error("[Auth] Login error:", error);
+        setAuthError(error.message);
+        showToast("Login failed: " + error.message, "error");
+        alert("Login failed: " + error.message);
+      } else if (data.session) {
+        console.log("[Auth] Login success, got session:", data.session);
+        setSession(data.session);
+        showToast("Logged in successfully.", "success");
+      } else {
+        console.error("[Auth] No session returned from Supabase");
+        const msg = "Login failed: no session returned from Supabase.";
+        setAuthError(msg);
+        showToast(msg, "error");
+        alert(msg);
+      }
+    } catch (err) {
+      console.error("[Auth] Unexpected login error:", err);
+      const msg = "Unexpected error during login. See console for details.";
       setAuthError(msg);
       showToast(msg, "error");
       alert(msg);
+    } finally {
+      setAuthLoading(false);
     }
-  } catch (err) {
-    console.error("[Auth] Unexpected login error:", err);
-    const msg = "Unexpected error during login. See console for details.";
-    setAuthError(msg);
-    showToast(msg, "error");
-    alert(msg);
-  } finally {
-    setAuthLoading(false);
-  }
-};
-
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -1091,7 +1111,10 @@ const App: React.FC = () => {
 
   return (
     <div className="app-root" style={{ minHeight: "100vh" }}>
-      <div className="app-shell" style={{ display: "flex", minHeight: "100vh" }}>
+      <div
+        className="app-shell"
+        style={{ display: "flex", minHeight: "100vh" }}
+      >
         <Sidebar
           theme={theme}
           onThemeChange={setTheme}
@@ -1162,37 +1185,37 @@ const App: React.FC = () => {
 
           {activePage === "projects" && (
             <ProjectsPage
-                profile={profile}
-    projects={projects}
-    projectItems={projectItems}
-    inventory={inventory}
-    loadingProjects={loadingProjects}
-    projectsError={projectsError}
-    selectedProjectId={selectedProjectId}
-    setSelectedProjectId={setSelectedProjectId}
-    newProjectName={newProjectName}
-    setNewProjectName={setNewProjectName}
-    newProjectNotes={newProjectNotes}
-    setNewProjectNotes={setNewProjectNotes}
-    creatingProject={creatingProject}
-    handleCreateProject={handleCreateProject}
-    newItemDescription={newItemDescription}
-    setNewItemDescription={setNewItemDescription}
-    newItemModelNumber={newItemModelNumber}
-    setNewItemModelNumber={setNewItemModelNumber}
-    newItemType={newItemType}
-    setNewItemType={setNewItemType}
-    newItemRequiredQty={newItemRequiredQty}
-    setNewItemRequiredQty={setNewItemRequiredQty}
-    savingProjectItem={savingProjectItem}
-    handleAddProjectItem={handleAddProjectItem}
-    selectedProjectItemId={selectedProjectItemId}
-    setSelectedProjectItemId={setSelectedProjectItemId}
-    allocationQty={allocationQty}
-    setAllocationQty={setAllocationQty}
-    handleAllocateToProject={handleAllocateToProject}
-    handleLogout={handleLogout}
-    reloadAll={() =>
+              profile={profile}
+              projects={projects}
+              projectItems={projectItems}
+              inventory={inventory}
+              loadingProjects={loadingProjects}
+              projectsError={projectsError}
+              selectedProjectId={selectedProjectId}
+              setSelectedProjectId={setSelectedProjectId}
+              newProjectName={newProjectName}
+              setNewProjectName={setNewProjectName}
+              newProjectNotes={newProjectNotes}
+              setNewProjectNotes={setNewProjectNotes}
+              creatingProject={creatingProject}
+              handleCreateProject={handleCreateProject}
+              newItemDescription={newItemDescription}
+              setNewItemDescription={setNewItemDescription}
+              newItemModelNumber={newItemModelNumber}
+              setNewItemModelNumber={setNewItemModelNumber}
+              newItemType={newItemType}
+              setNewItemType={setNewItemType}
+              newItemRequiredQty={newItemRequiredQty}
+              setNewItemRequiredQty={setNewItemRequiredQty}
+              savingProjectItem={savingProjectItem}
+              handleAddProjectItem={handleAddProjectItem}
+              selectedProjectItemId={selectedProjectItemId}
+              setSelectedProjectItemId={setSelectedProjectItemId}
+              allocationQty={allocationQty}
+              setAllocationQty={setAllocationQty}
+              handleAllocateToProject={handleAllocateToProject}
+              handleLogout={handleLogout}
+              reloadAll={() =>
                 Promise.all([loadProjectsAndItems(), loadInventory()])
               }
             />
@@ -1213,7 +1236,7 @@ const App: React.FC = () => {
               setTsWorkType={setTsWorkType}
               onClockIn={handleClockIn}
               onClockOut={handleClockOut}
-              onDownloadTimesheet={handleDownloadTimesheet} 
+              onDownloadTimesheet={handleDownloadTimesheet}
               handleLogout={handleLogout}
             />
           )}
