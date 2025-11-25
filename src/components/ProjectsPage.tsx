@@ -82,6 +82,9 @@ interface ProjectsPageProps {
   ) => void | Promise<void>;
 
   handleLogout: () => void;
+
+  // optional refresh hook from App
+  reloadAll?: () => Promise<void>;
 }
 
 // status chip helper
@@ -179,6 +182,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
   handleAllocateToProject,
 
   handleLogout,
+  reloadAll,
 }) => {
   const selectedProject =
     projects.find((p) => String(p.id) === selectedProjectId) ?? null;
@@ -233,12 +237,14 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
         <button
           onClick={handleLogout}
           style={{
-            padding: "0.35rem 0.75rem",
-            borderRadius: 4,
-            border: "1px solid var(--gcss-border, #d1d5db)",
-            background: "var(--gcss-surface, #f9fafb)",
+            padding: "0.35rem 0.85rem",
+            borderRadius: 999,
+            border: "none",
+            background: "#dc2626",
+            color: "#fef2f2",
             cursor: "pointer",
-            fontSize: "0.85rem",
+            fontSize: "0.8rem",
+            fontWeight: 600,
           }}
         >
           Logout
@@ -299,6 +305,8 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
               borderRadius: 4,
               border: "1px solid var(--gcss-border, #d1d5db)",
               fontSize: "0.85rem",
+              background: "var(--gcss-input-bg, #020617)",
+              color: "var(--gcss-text, #e5e7eb)",
             }}
           >
             <option value="">Select a project…</option>
@@ -319,9 +327,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
             >
               <div>
                 <strong>Created:</strong>{" "}
-                {new Date(
-                  selectedProject.created_at
-                ).toLocaleDateString()}
+                {new Date(selectedProject.created_at).toLocaleDateString()}
               </div>
               {selectedProject.notes && (
                 <div style={{ marginTop: "0.25rem" }}>
@@ -479,9 +485,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
                 <input
                   type="text"
                   value={newItemModelNumber}
-                  onChange={(e) =>
-                    setNewItemModelNumber(e.target.value)
-                  }
+                  onChange={(e) => setNewItemModelNumber(e.target.value)}
                   placeholder="e.g. FSP-951"
                   style={{
                     width: "100%",
@@ -566,11 +570,21 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
       {/* Project items & allocation */}
       <h2 style={{ fontSize: "1rem" }}>Project Items</h2>
       {!selectedProject ? (
-        <div style={{ fontSize: "0.9rem", color: "var(--gcss-muted, #6b7280)" }}>
+        <div
+          style={{
+            fontSize: "0.9rem",
+            color: "var(--gcss-muted, #6b7280)",
+          }}
+        >
           Select a project to view and allocate parts.
         </div>
       ) : itemsForProject.length === 0 ? (
-        <div style={{ fontSize: "0.9rem", color: "var(--gcss-muted, #6b7280)" }}>
+        <div
+          style={{
+            fontSize: "0.9rem",
+            color: "var(--gcss-muted, #6b7280)",
+          }}
+        >
           No items added for this project yet.
         </div>
       ) : (
@@ -587,15 +601,43 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
                 maxWidth: 800,
               }}
             >
-              <h3
+              <div
                 style={{
-                  marginTop: 0,
-                  marginBottom: "0.5rem",
-                  fontSize: "0.95rem",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "0.35rem",
+                  gap: "0.5rem",
                 }}
               >
-                Allocate Stock to Project
-              </h3>
+                <h3
+                  style={{
+                    marginTop: 0,
+                    marginBottom: 0,
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  Allocate Stock to Project
+                </h3>
+                {reloadAll && (
+                  <button
+                    type="button"
+                    onClick={() => void reloadAll()}
+                    style={{
+                      padding: "0.25rem 0.6rem",
+                      borderRadius: 999,
+                      border:
+                        "1px solid var(--gcss-border, #d1d5db)",
+                      background:
+                        "var(--gcss-surface, #0f172a)",
+                      fontSize: "0.75rem",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Refresh
+                  </button>
+                )}
+              </div>
               <div
                 style={{
                   display: "grid",
@@ -616,9 +658,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
                   </label>
                   <select
                     value={
-                      selectedProjectItemId === ""
-                        ? ""
-                        : selectedProjectItemId
+                      selectedProjectItemId === "" ? "" : selectedProjectItemId
                     }
                     onChange={(e) =>
                       setSelectedProjectItemId(
@@ -629,8 +669,12 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
                       width: "100%",
                       padding: "0.4rem",
                       borderRadius: 4,
-                      border: "1px solid var(--gcss-border, #d1d5db)",
+                      border:
+                        "1px solid var(--gcss-border, #d1d5db)",
                       fontSize: "0.85rem",
+                      background:
+                        "var(--gcss-input-bg, #020617)",
+                      color: "var(--gcss-text, #e5e7eb)",
                     }}
                   >
                     <option value="">Select an item…</option>
@@ -660,7 +704,8 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
                       width: "100%",
                       padding: "0.4rem",
                       borderRadius: 4,
-                      border: "1px solid var(--gcss-border, #d1d5db)",
+                      border:
+                        "1px solid var(--gcss-border, #d1d5db)",
                       fontSize: "0.85rem",
                     }}
                   />

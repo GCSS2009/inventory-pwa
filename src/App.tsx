@@ -1163,6 +1163,7 @@ const App: React.FC = () => {
           {activePage === "projects" && (
             <ProjectsPage
               projects={projects}
+              profile={profile}
               projectItems={projectItems}
               inventory={inventory}
               loadingProjects={loadingProjects}
@@ -1190,6 +1191,7 @@ const App: React.FC = () => {
               allocationQty={allocationQty}
               setAllocationQty={setAllocationQty}
               handleAllocateToProject={handleAllocateToProject}
+              handleLogout={handleLogout}
               reloadAll={() =>
                 Promise.all([loadProjectsAndItems(), loadInventory()])
               }
