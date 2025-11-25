@@ -88,6 +88,30 @@ interface InventoryPageProps {
   onRefreshHistory?: () => Promise<void>;
 }
 
+const newItemInputStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "0.4rem",
+  borderRadius: 4,
+  border: "1px solid var(--gcss-border, #d1d5db)",
+  fontSize: "0.85rem",
+};
+
+function adjustButtonStyle(
+  enabled: boolean,
+  bg: string
+): React.CSSProperties {
+  return {
+    padding: "0.4rem 0.7rem",
+    borderRadius: 999,
+    border: "1px solid var(--gcss-border, #9ca3af)",
+    fontSize: "0.8rem",
+    cursor: enabled ? "pointer" : "not-allowed",
+    opacity: enabled ? 1 : 0.5,
+    background: enabled ? bg : "var(--gcss-surface, #e5e7eb)",
+    whiteSpace: "nowrap",
+  };
+}
+
 const InventoryPage: React.FC<InventoryPageProps> = ({
   session,
   profile,
@@ -602,7 +626,7 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
         )}
       </div>
 
-      {/* RIGHT: Inventory list with search */}
+      {/* Inventory list with search */}
       <div>
         <div
           style={{
@@ -681,26 +705,95 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                             width: "100%",
                             borderCollapse: "collapse",
                             fontSize: "0.85rem",
-                            minWidth: 520,
                           }}
                         >
                           <thead>
                             <tr>
-                              <th style={thLeft}>Description</th>
-                              <th style={thLeft}>Type</th>
-                              <th style={thLeft}>Model</th>
-                              <th style={thRight}>Office</th>
-                              <th style={thRight}>Van</th>
+                              {[
+                                "Description",
+                                "Type",
+                                "Model",
+                                "Office",
+                                "Van",
+                              ].map((label) => (
+                                <th
+                                  key={label}
+                                  style={{
+                                    background:
+                                      "var(--gcss-surface-strong, #020617)",
+                                    color:
+                                      "var(--gcss-on-surface, #e5e7eb)",
+                                    fontWeight: 600,
+                                    padding: "0.4rem 0.55rem",
+                                    borderBottom:
+                                      "1px solid var(--gcss-border, #4b5563)",
+                                    textAlign:
+                                      label === "Office" ||
+                                      label === "Van"
+                                        ? "right"
+                                        : "left",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {label}
+                                </th>
+                              ))}
                             </tr>
                           </thead>
                           <tbody>
                             {itemsForMfg.map((item) => (
                               <tr key={item.id}>
-                                <td style={td}>{item.description}</td>
-                                <td style={td}>{item.type}</td>
-                                <td style={td}>{item.model_number}</td>
-                                <td style={tdRight}>{item.office_qty}</td>
-                                <td style={tdRight}>{item.van_qty}</td>
+                                <td
+                                  style={{
+                                    padding: "0.35rem 0.55rem",
+                                    borderBottom:
+                                      "1px solid var(--gcss-border, #e5e7eb)",
+                                  }}
+                                >
+                                  {item.description}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: "0.35rem 0.55rem",
+                                    borderBottom:
+                                      "1px solid var(--gcss-border, #e5e7eb)",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {item.type}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: "0.35rem 0.55rem",
+                                    borderBottom:
+                                      "1px solid var(--gcss-border, #e5e7eb)",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {item.model_number}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: "0.35rem 0.55rem",
+                                    borderBottom:
+                                      "1px solid var(--gcss-border, #e5e7eb)",
+                                    textAlign: "right",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {item.office_qty}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: "0.35rem 0.55rem",
+                                    borderBottom:
+                                      "1px solid var(--gcss-border, #e5e7eb)",
+                                    textAlign: "right",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {item.van_qty}
+                                </td>
                               </tr>
                             ))}
                           </tbody>
@@ -715,144 +808,90 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
         )}
       </div>
 
-      {/* Change history */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          marginTop: "1.25rem",
-          marginBottom: "0.3rem",
-        }}
-      >
-        <h2 style={{ fontSize: "1rem", margin: 0 }}>Change History</h2>
-        {onRefreshHistory && (
-          <button
-            type="button"
-            onClick={onRefreshHistory}
-            style={{
-              padding: "0.25rem 0.5rem",
-              fontSize: "0.75rem",
-              borderRadius: 999,
-              border: "1px solid var(--gcss-border, #d1d5db)",
-              background: "var(--gcss-surface, #f9fafb)",
-              cursor: "pointer",
-            }}
-          >
-            Refresh
-          </button>
-        )}
-      </div>
-
-      {loadingChanges ? (
-        <div>Loading change history…</div>
-      ) : changes.length === 0 ? (
+      {/* Optional: simple change history preview */}
+      <div style={{ marginTop: "1.5rem" }}>
         <div
           style={{
-            fontSize: "0.9rem",
-            color: "var(--gcss-muted, #6b7280)",
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "0.5rem",
+            gap: "0.5rem",
           }}
         >
-          No changes logged yet.
-          <br />
-          <span style={{ fontSize: "0.8rem", color: "#888" }}>
-            Admins see all users&apos; changes. Techs only see their own
-            entries (enforced by RLS).
-          </span>
+          <h2 style={{ fontSize: "1rem", margin: 0 }}>Recent Changes</h2>
+          {onRefreshHistory && (
+            <button
+              type="button"
+              onClick={() => void onRefreshHistory()}
+              style={{
+                padding: "0.25rem 0.6rem",
+                borderRadius: 999,
+                border: "1px solid var(--gcss-border, #d1d5db)",
+                background: "var(--gcss-surface, #f9fafb)",
+                fontSize: "0.75rem",
+                cursor: "pointer",
+              }}
+            >
+              Refresh
+            </button>
+          )}
         </div>
-      ) : (
-        <div style={{ overflowX: "auto" }}>
-          <table
+
+        {loadingChanges ? (
+          <div>Loading change history…</div>
+        ) : !changes.length ? (
+          <div
             style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              fontSize: "0.8rem",
-              marginTop: "0.3rem",
-              minWidth: 520,
+              fontSize: "0.85rem",
+              color: "var(--gcss-muted, #6b7280)",
             }}
           >
-            <thead>
-              <tr>
-                <th style={thLeft}>Time</th>
-                <th style={thLeft}>User</th>
-                <th style={thLeft}>Item</th>
-                <th style={thLeft}>From → To</th>
-                <th style={thRight}>Qty</th>
-              </tr>
-            </thead>
-            <tbody>
-              {changes.map((row) => (
-                <tr key={row.id}>
-                  <td style={td}>
-                    {new Date(row.created_at).toLocaleString()}
-                  </td>
-                  <td style={td}>
-                    {row.user_email}{" "}
-                    {row.role ? (
-                      <span style={{ color: "#777" }}>({row.role})</span>
-                    ) : null}
-                  </td>
-                  <td style={td}>
-                    {row.description}{" "}
-                    {row.model_number ? `(${row.model_number})` : ""}
-                  </td>
-                  <td style={td}>
-                    {row.from_location} → {row.to_location}
-                  </td>
-                  <td style={tdRight}>{row.quantity}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+            No recent changes.
+          </div>
+        ) : (
+          <div
+            style={{
+              border: "1px solid var(--gcss-border, #d1d5db)",
+              borderRadius: 6,
+              padding: "0.6rem 0.75rem",
+              maxHeight: 260,
+              overflowY: "auto",
+              background: "var(--gcss-surface, #f9fafb)",
+              fontSize: "0.8rem",
+            }}
+          >
+            {changes.slice(0, 50).map((c) => (
+              <div
+                key={c.id}
+                style={{
+                  padding: "0.25rem 0",
+                  borderBottom:
+                    "1px solid var(--gcss-border, rgba(209,213,219,0.6))",
+                }}
+              >
+                <div style={{ fontWeight: 500 }}>
+                  {c.description ?? "(item)"}{" "}
+                  {c.model_number && (
+                    <span style={{ color: "#6b7280" }}>
+                      ({c.model_number})
+                    </span>
+                  )}
+                </div>
+                <div style={{ color: "#6b7280" }}>
+                  {c.from_location} → {c.to_location} · qty{" "}
+                  {c.quantity ?? 0}
+                </div>
+                <div style={{ color: "#9ca3af" }}>
+                  {new Date(c.created_at).toLocaleString()} ·{" "}
+                  {c.user_email ?? "Unknown"} ({c.role ?? "N/A"})
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
-};
-
-const adjustButtonStyle = (
-  enabled: boolean,
-  bg: string
-): React.CSSProperties => ({
-  padding: "0.4rem 0.75rem",
-  borderRadius: 4,
-  border: "1px solid #ccc",
-  background: enabled ? bg : "#f3f4f6",
-  cursor: enabled ? "pointer" : "not-allowed",
-  fontSize: "0.8rem",
-});
-
-const thBase: React.CSSProperties = {
-  borderBottom: "1px solid #ddd",
-  padding: "0.25rem 0.4rem",
-};
-
-const thLeft: React.CSSProperties = {
-  ...thBase,
-  textAlign: "left",
-};
-
-const thRight: React.CSSProperties = {
-  ...thBase,
-  textAlign: "right",
-};
-
-const td: React.CSSProperties = {
-  borderBottom: "1px solid #eee",
-  padding: "0.25rem 0.4rem",
-};
-
-const tdRight: React.CSSProperties = {
-  ...td,
-  textAlign: "right",
-};
-
-const newItemInputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "0.4rem",
-  borderRadius: 4,
-  border: "1px solid var(--gcss-border, #d1d5db)",
-  fontSize: "0.85rem",
 };
 
 export default InventoryPage;

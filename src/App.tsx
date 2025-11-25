@@ -10,6 +10,8 @@ import InventoryPage from "./components/InventoryPage";
 import ProjectsPage from "./components/ProjectsPage";
 import TimesheetPage from "./components/TimesheetPage";
 
+const APP_VERSION = "1.0.0"; // bump this when you ship
+
 // ======================
 // Types
 // ======================
@@ -80,12 +82,16 @@ interface TimesheetRow {
   clock_out: string | null;
 }
 
+// NOTE: extended so we keep work_date + clock times
 interface TimesheetEntry {
   id: number;
   created_at: string;
+  work_date: string;
   project: string | null;
   work_type: string | null;
   hours: number | null;
+  clock_in: string | null;
+  clock_out: string | null;
 }
 
 interface CurrentClockIn {
@@ -123,6 +129,21 @@ function todayAsDateString() {
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+}
+
+function formatRoundedTime(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+
+  const intervalMs = 15 * 60 * 1000;
+  const rounded = Math.round(d.getTime() / intervalMs) * intervalMs;
+  const rd = new Date(rounded);
+
+  return rd.toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 // ======================
@@ -213,7 +234,7 @@ const App: React.FC = () => {
     []
   );
   const [loadingEntries, setLoadingEntries] = useState(false);
-  const [, setTimesheetError] = useState<string | null>(null);
+  const [timesheetError, setTimesheetError] = useState<string | null>(null);
 
   const [currentClockIn, setCurrentClockIn] =
     useState<CurrentClockIn | null>(null);
@@ -449,9 +470,12 @@ const App: React.FC = () => {
       const mapped: TimesheetEntry[] = (data as TimesheetRow[]).map((row) => ({
         id: row.id,
         created_at: row.created_at,
+        work_date: row.work_date,
         project: row.project,
         work_type: row.work_type,
         hours: row.hours_decimal,
+        clock_in: row.clock_in,
+        clock_out: row.clock_out,
       }));
       setTimesheetEntries(mapped);
     }
@@ -715,14 +739,15 @@ const App: React.FC = () => {
 
     if (error) {
       showToast("Error creating project: " + error.message, "error");
-    } else {
-      setNewProjectName("");
-      setNewProjectNotes("");
-      await loadProjectsAndItems();
-      showToast("Project created.", "success");
+      setCreatingProject(false);
+      return;
     }
 
+    setNewProjectName("");
+    setNewProjectNotes("");
     setCreatingProject(false);
+    showToast("Project created.", "success");
+    await loadProjectsAndItems();
   };
 
   const handleAddProjectItem = async (
@@ -733,19 +758,28 @@ const App: React.FC = () => {
       showToast("Select a project first.", "error");
       return;
     }
-    const required = parseInt(newItemRequiredQty, 10);
-    if (!Number.isFinite(required) || required <= 0) {
-      showToast("Required quantity must be a positive number.", "error");
+
+    const desc = newItemDescription.trim();
+    const model = newItemModelNumber.trim();
+    const type = newItemType.trim();
+    const required = parseInt(newItemRequiredQty, 10) || 0;
+
+    if (!desc || !model || !type || required <= 0) {
+      showToast(
+        "Description, type, model, and required quantity are needed.",
+        "error"
+      );
       return;
     }
 
     setSavingProjectItem(true);
 
     const { error } = await supabase.from("project_items").insert({
-      project_id: selectedProjectId,
-      description: newItemDescription.trim(),
-      model_number: newItemModelNumber.trim(),
-      type: newItemType.trim(),
+      project_id: Number(selectedProjectId),
+      item_id: null,
+      description: desc,
+      model_number: model,
+      type,
       required_qty: required,
       allocated_office: 0,
       allocated_van: 0,
@@ -753,173 +787,183 @@ const App: React.FC = () => {
 
     if (error) {
       showToast("Error adding project item: " + error.message, "error");
-    } else {
-      setNewItemDescription("");
-      setNewItemModelNumber("");
-      setNewItemType("");
-      setNewItemRequiredQty("");
-      await loadProjectsAndItems();
-      showToast("Project item added.", "success");
+      setSavingProjectItem(false);
+      return;
     }
 
+    setNewItemDescription("");
+    setNewItemModelNumber("");
+    setNewItemType("");
+    setNewItemRequiredQty("");
     setSavingProjectItem(false);
+    showToast("Project item added.", "success");
+    await loadProjectsAndItems();
   };
 
-  const handleAllocateToProject = async (source: "office" | "van") => {
-    if (!selectedProjectItemId || !allocationQty) return;
+  const handleAllocateToProject = async (from: "office" | "van") => {
+    if (!selectedProjectItemId) {
+      showToast("Select a project item first.", "error");
+      return;
+    }
+
     const qty = parseInt(allocationQty, 10);
-    if (!Number.isFinite(qty) || qty <= 0) return;
+    if (!Number.isFinite(qty) || qty <= 0) {
+      showToast("Enter a valid allocation quantity.", "error");
+      return;
+    }
 
     const pItem = projectItems.find((pi) => pi.id === selectedProjectItemId);
-    if (!pItem) return;
+    if (!pItem) {
+      showToast("Project item not found.", "error");
+      return;
+    }
 
-    const inv =
-      inventory.find((i) => i.id === pItem.item_id) ||
-      inventory.find(
-        (i) =>
-          i.model_number.toLowerCase() ===
-          pItem.model_number.toLowerCase()
-      );
+    const matchingInventory = inventory.find(
+      (i) =>
+        i.model_number.toLowerCase() ===
+        pItem.model_number.toLowerCase()
+    );
 
-    if (!inv) {
+    if (!matchingInventory) {
       showToast(
-        "No matching inventory item found for this project item.",
+        "No inventory item with that model number found to allocate.",
         "error"
       );
       return;
     }
 
-    if (source === "office") {
-      if (inv.office_qty < qty) {
-        showToast("Not enough office stock.", "error");
+    // Adjust inventory
+    let newOffice = matchingInventory.office_qty;
+    let newVan = matchingInventory.van_qty;
+
+    if (from === "office") {
+      if (newOffice < qty) {
+        showToast("Not enough office stock to allocate.", "error");
         return;
       }
+      newOffice -= qty;
     } else {
-      if (inv.van_qty < qty) {
-        showToast("Not enough van stock.", "error");
+      if (newVan < qty) {
+        showToast("Not enough van stock to allocate.", "error");
         return;
       }
+      newVan -= qty;
     }
 
-    const currentlyAllocated =
-      pItem.allocated_office + pItem.allocated_van;
-    if (currentlyAllocated + qty > pItem.required_qty) {
-      showToast("Cannot allocate more than required.", "error");
-      return;
-    }
-
-    let newAllocatedOffice = pItem.allocated_office;
-    let newAllocatedVan = pItem.allocated_van;
-    let newOfficeInv = inv.office_qty;
-    let newVanInv = inv.van_qty;
-
-    if (source === "office") {
-      newAllocatedOffice += qty;
-      newOfficeInv -= qty;
+    const updates: Partial<ProjectItem> = {};
+    if (from === "office") {
+      updates.allocated_office = pItem.allocated_office + qty;
     } else {
-      newAllocatedVan += qty;
-      newVanInv -= qty;
-    }
-
-    const { error: projErr } = await supabase
-      .from("project_items")
-      .update({
-        allocated_office: newAllocatedOffice,
-        allocated_van: newAllocatedVan,
-      })
-      .eq("id", pItem.id);
-
-    if (projErr) {
-      showToast(
-        "Error updating project allocation: " + projErr.message,
-        "error"
-      );
-      return;
+      updates.allocated_van = pItem.allocated_van + qty;
     }
 
     const { error: invErr } = await supabase
       .from("inventory_items")
-      .update({ office_qty: newOfficeInv, van_qty: newVanInv })
-      .eq("id", inv.id);
+      .update({ office_qty: newOffice, van_qty: newVan })
+      .eq("id", matchingInventory.id);
 
     if (invErr) {
-      showToast(
-        "Error updating inventory after allocation: " + invErr.message,
-        "error"
-      );
+      showToast("Error updating inventory: " + invErr.message, "error");
       return;
     }
 
-    await Promise.all([loadProjectsAndItems(), loadInventory()]);
+    const { error: pErr } = await supabase
+      .from("project_items")
+      .update(updates)
+      .eq("id", pItem.id);
+
+    if (pErr) {
+      showToast("Error updating project item: " + pErr.message, "error");
+      return;
+    }
+
+    await supabase.from("inventory_changes").insert({
+      user_id: session?.user.id ?? null,
+      user_email: profile?.email ?? session?.user.email ?? null,
+      role: profile?.role ?? null,
+      item_id: matchingInventory.id,
+      description: matchingInventory.description,
+      model_number: matchingInventory.model_number,
+      from_location: from,
+      to_location: `project:${pItem.project_id}`,
+      quantity: qty,
+    });
+
     setAllocationQty("");
-    showToast("Allocation saved.", "success");
+    showToast("Allocated to project.", "success");
+    await Promise.all([loadInventory(), loadProjectsAndItems()]);
   };
 
   // ======================
   // Timesheet Handlers
   // ======================
   const handleClockIn = async () => {
-    if (!session?.user) return;
-
+    if (!session?.user) {
+      showToast("You must be logged in to clock in.", "error");
+      return;
+    }
     if (currentClockIn) {
       showToast("You are already clocked in.", "error");
       return;
     }
 
-    const now = new Date();
-    const workDate = todayAsDateString();
+    const nowIso = new Date().toISOString();
 
-    const { error } = await supabase.from("timesheet_entries").insert({
-      user_id: session.user.id,
-      work_date: workDate,
-      clock_in: now.toISOString(),
-      clock_out: null,
-      project: tsProject.trim() || null,
-      work_type: tsWorkType || null,
-      hours_decimal: null,
-    });
+    const { data, error } = await supabase
+      .from("timesheet_entries")
+      .insert({
+        user_id: session.user.id,
+        work_date: todayAsDateString(),
+        project: null,
+        work_type: null,
+        hours_decimal: null,
+        clock_in: nowIso,
+        clock_out: null,
+      })
+      .select("id, clock_in, project, work_type")
+      .single();
 
     if (error) {
       showToast("Error clocking in: " + error.message, "error");
       return;
     }
 
+    setCurrentClockIn({
+      id: data.id,
+      start_time: data.clock_in,
+      project: data.project,
+      work_type: data.work_type,
+    });
     setTsProject("");
-    await loadCurrentClockIn();
+    setTsWorkType("Install");
+    showToast(
+      "Clocked in at " + formatRoundedTime(nowIso) + ".",
+      "success"
+    );
     await loadTimesheetForWeek(weekEnding);
-    showToast("Clocked in.", "success");
   };
 
   const handleClockOut = async () => {
-    if (!currentClockIn) return;
-
-    const finalProject =
-      tsProject.trim() || currentClockIn.project?.trim() || "";
-    const finalWorkType =
-      tsWorkType.trim() || currentClockIn.work_type?.trim() || "";
-
-    if (!finalProject) {
-      showToast("Enter a project/location before clocking out.", "error");
-      return;
-    }
-
-    if (!finalWorkType) {
-      showToast("Select a work type before clocking out.", "error");
+    if (!session?.user || !currentClockIn) {
+      showToast("You are not currently clocked in.", "error");
       return;
     }
 
     const now = new Date();
     const start = new Date(currentClockIn.start_time);
     const diffMs = now.getTime() - start.getTime();
-    const hours = diffMs / (1000 * 60 * 60);
+    const hours = Math.round((diffMs / 1000 / 60 / 60) * 100) / 100;
+
+    const nowIso = now.toISOString();
 
     const { error } = await supabase
       .from("timesheet_entries")
       .update({
-        clock_out: now.toISOString(),
+        work_date: todayAsDateString(),
+        project: tsProject.trim() || null,
+        work_type: tsWorkType.trim() || null,
         hours_decimal: hours,
-        project: finalProject,
-        work_type: finalWorkType,
+        clock_out: nowIso,
       })
       .eq("id", currentClockIn.id);
 
@@ -928,94 +972,136 @@ const App: React.FC = () => {
       return;
     }
 
+    showToast(
+      `Clocked out at ${formatRoundedTime(
+        nowIso
+      )}. Total: ${hours.toFixed(2)} hours.`,
+      "success"
+    );
+
     setCurrentClockIn(null);
     setTsProject("");
     setTsWorkType("Install");
     await loadTimesheetForWeek(weekEnding);
-    showToast("Clocked out.", "success");
+    await loadCurrentClockIn();
   };
 
-  const downloadTimesheet = () => {
+  const handleDownloadTimesheet = () => {
     if (!timesheetEntries.length) {
-      showToast("No entries to export.", "info");
+      showToast("No entries to export for this week.", "info");
       return;
     }
 
-    const sheetData = timesheetEntries.map((row) => ({
-      Date: new Date(row.created_at).toLocaleDateString(),
-      Project: row.project ?? "",
-      WorkType: row.work_type ?? "",
-      Hours: row.hours ?? 0,
+    const rows = timesheetEntries.map((entry, index) => ({
+      "#": index + 1,
+      Date: entry.work_date,
+      Project: entry.project ?? "",
+      Type: entry.work_type ?? "",
+      "Clock in": formatRoundedTime(entry.clock_in),
+      "Clock out": formatRoundedTime(entry.clock_out),
+      Hours: entry.hours ?? 0,
     }));
 
-    const ws = XLSX.utils.json_to_sheet(sheetData);
+    const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Timesheet");
 
-    const fileName = `gcss_timesheet_${weekEnding}.xlsx`;
-    XLSX.writeFile(wb, fileName);
-    showToast("Timesheet downloaded.", "success");
+    XLSX.writeFile(wb, `gcss-timesheet-${weekEnding}.xlsx`);
   };
 
-  const totalHours = timesheetEntries.reduce(
-    (sum, row) => sum + (row.hours ?? 0),
-    0
+  // ======================
+  // Render Helpers
+  // ======================
+  const renderToasts = () => (
+    <div
+      style={{
+        position: "fixed",
+        right: "1rem",
+        bottom: "1rem",
+        zIndex: 50,
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.5rem",
+      }}
+    >
+      {toasts.map((t) => {
+        let bg = "rgba(15,23,42,0.95)";
+        if (t.type === "success") bg = "rgba(22,163,74,0.95)";
+        if (t.type === "error") bg = "rgba(220,38,38,0.95)";
+        return (
+          <div
+            key={t.id}
+            style={{
+              minWidth: 220,
+              maxWidth: 320,
+              padding: "0.6rem 0.8rem",
+              borderRadius: 6,
+              background: bg,
+              color: "#f9fafb",
+              boxShadow: "0 8px 20px rgba(0,0,0,0.35)",
+              fontSize: "0.85rem",
+            }}
+          >
+            {t.message}
+          </div>
+        );
+      })}
+    </div>
   );
 
   // ======================
-  // Auth Gate
+  // Render
   // ======================
   if (!session) {
     return (
-      <AuthScreen
-        authEmail={authEmail}
-        setAuthEmail={setAuthEmail}
-        authPassword={authPassword}
-        setAuthPassword={setAuthPassword}
-        handleLogin={handleLogin}
-        authError={authError ?? profileError}
-        authLoading={authLoading}
-      />
+      <div className="app-root" style={{ minHeight: "100vh" }}>
+        <AuthScreen
+          email={authEmail}
+          password={authPassword}
+          onEmailChange={setAuthEmail}
+          onPasswordChange={setAuthPassword}
+          onSubmit={handleLogin}
+          loading={authLoading}
+          error={authError}
+        />
+        {renderToasts()}
+      </div>
     );
   }
 
-  // ======================
-  // Main Shell
-  // ======================
-  const isLoadingOverlay =
-    loadingInventory || loadingProjects || loadingEntries;
-
   return (
-    <div className="app-shell" style={{ position: "relative" }}>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: isMobile ? "column" : "row",
-          minHeight: "100vh",
-          background: "var(--gcss-bg)",
-          color: "var(--gcss-text)",
-        }}
-      >
+    <div className="app-root" style={{ minHeight: "100vh" }}>
+      <div className="app-shell" style={{ display: "flex", minHeight: "100vh" }}>
         <Sidebar
-          activePage={activePage}
-          setActivePage={setActivePage}
-          theme={theme}
-          setTheme={setTheme}
-          profile={profile}
-          session={session}
-          isMobile={isMobile}
-        />
+  theme={theme}
+  onThemeChange={setTheme}
+  activePage={activePage}
+  onChangePage={setActivePage}
+  profile={profile}
+  isMobile={isMobile}
+  appVersion={APP_VERSION}
+/>
+
 
         <main
           style={{
             flex: 1,
-            background: "var(--gcss-surface)",
-            padding: isMobile
-              ? "0.75rem 0.5rem 1.5rem"
-              : "1.25rem 1.5rem 2rem",
-            boxSizing: "border-box",
+            padding: isMobile ? "0.75rem" : "1.25rem",
+            overflowX: "hidden",
           }}
         >
+          {profileError && (
+            <div
+              style={{
+                marginBottom: "0.75rem",
+                color: "#dc2626",
+                fontSize: "0.85rem",
+              }}
+            >
+              {profileError}
+            </div>
+          )}
+
           {activePage === "inventory" && (
             <InventoryPage
               session={session}
@@ -1030,9 +1116,6 @@ const App: React.FC = () => {
               setSelectedItemId={setSelectedItemId}
               quantity={quantity}
               setQuantity={setQuantity}
-              handleAdjust={handleAdjust}
-              handleLogout={handleLogout}
-              creatingItem={creatingInvItem}
               newItemCategory={newInvCategory}
               setNewItemCategory={setNewInvCategory}
               newItemDescription={newInvDescription}
@@ -1047,14 +1130,19 @@ const App: React.FC = () => {
               setNewItemOfficeQty={setNewInvOfficeQty}
               newItemVanQty={newInvVanQty}
               setNewItemVanQty={setNewInvVanQty}
-              handleCreateItem={handleCreateInventoryItem}
+              creatingItem={creatingInvItem}
+              handleCreateItem={(e) => {
+                e.preventDefault();
+                void handleCreateInventoryItem();
+              }}
+              handleAdjust={handleAdjust}
+              handleLogout={handleLogout}
               onRefreshHistory={loadChanges}
             />
           )}
 
           {activePage === "projects" && (
             <ProjectsPage
-              profile={profile}
               projects={projects}
               projectItems={projectItems}
               inventory={inventory}
@@ -1083,85 +1171,34 @@ const App: React.FC = () => {
               allocationQty={allocationQty}
               setAllocationQty={setAllocationQty}
               handleAllocateToProject={handleAllocateToProject}
-              handleLogout={handleLogout}
+              reloadAll={() =>
+                Promise.all([loadProjectsAndItems(), loadInventory()])
+              }
             />
           )}
 
           {activePage === "timesheet" && (
             <TimesheetPage
-              session={session}
               profile={profile}
-              currentClockIn={currentClockIn}
-              selectedProject={tsProject}
-              setSelectedProject={setTsProject}
-              selectedWorkType={tsWorkType}
-              setSelectedWorkType={setTsWorkType}
-              onClockIn={handleClockIn}
-              onClockOut={handleClockOut}
               weekEnding={weekEnding}
               setWeekEnding={setWeekEnding}
               entries={timesheetEntries}
               loadingEntries={loadingEntries}
-              totalHours={totalHours}
-              downloadTimesheet={downloadTimesheet}
+              error={timesheetError}
+              currentClockIn={currentClockIn}
+              tsProject={tsProject}
+              setTsProject={setTsProject}
+              tsWorkType={tsWorkType}
+              setTsWorkType={setTsWorkType}
+              onClockIn={handleClockIn}
+              onClockOut={handleClockOut}
+              onDownloadTimesheet={handleDownloadTimesheet}
             />
           )}
         </main>
       </div>
 
-      {/* Toasts */}
-      <div
-        style={{
-          position: "fixed",
-          top: "0.75rem",
-          right: "0.75rem",
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.5rem",
-          zIndex: 10000,
-        }}
-      >
-        {toasts.map((t) => (
-          <div
-            key={t.id}
-            style={{
-              padding: "0.5rem 0.75rem",
-              borderRadius: 4,
-              fontSize: "0.85rem",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.35)",
-              color: "#f9fafb",
-              background:
-                t.type === "success"
-                  ? "#16a34a"
-                  : t.type === "error"
-                  ? "#dc2626"
-                  : "#2563eb",
-              maxWidth: 260,
-            }}
-          >
-            {t.message}
-          </div>
-        ))}
-      </div>
-
-      {isLoadingOverlay && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(15, 23, 42, 0.6)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-            color: "#e5e7eb",
-            fontSize: "1rem",
-            backdropFilter: "blur(2px)",
-          }}
-        >
-          Loading data…
-        </div>
-      )}
+      {renderToasts()}
     </div>
   );
 };
