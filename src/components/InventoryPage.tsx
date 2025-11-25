@@ -313,7 +313,8 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                   borderRadius: 4,
                   border: "1px solid var(--gcss-border, #d1d5db)",
                   fontSize: "0.85rem",
-                  background: "var(--gcss-input-bg, var(--gcss-surface, #020617))",
+                  background:
+                    "var(--gcss-input-bg, var(--gcss-surface, #020617))",
                   color: "var(--gcss-text, #e5e7eb)",
                 }}
               >
@@ -469,15 +470,26 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                       width: "100%",
                       padding: "0.4rem",
                       borderRadius: 4,
-                      border: "1px solid var(--gcss-border, #d1d5db)",
+                      border:
+                        "1px solid var(--gcss-border, #d1d5db)",
                       fontSize: "0.85rem",
-                      background: "var(--gcss-input-bg)",
+                      background:
+                        "var(--gcss-input-bg, var(--gcss-surface, #020617))",
+                      color: "var(--gcss-text, #e5e7eb)",
                     }}
                   >
-                    <option value="Fire Control">Fire Control</option>
-                    <option value="Addressable">Addressable</option>
-                    <option value="Notification">Notification</option>
-                    <option value="Miscellaneous">Miscellaneous</option>
+                    <option value="Fire Control">
+                      Fire Control
+                    </option>
+                    <option value="Addressable">
+                      Addressable
+                    </option>
+                    <option value="Notification">
+                      Notification
+                    </option>
+                    <option value="Miscellaneous">
+                      Miscellaneous
+                    </option>
                   </select>
                 </div>
 
@@ -515,7 +527,9 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                   <input
                     type="text"
                     value={newItemType}
-                    onChange={(e) => setNewItemType(e.target.value)}
+                    onChange={(e) =>
+                      setNewItemType(e.target.value)
+                    }
                     placeholder="e.g. Initiating"
                     style={newItemInputStyle}
                   />
@@ -566,7 +580,8 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                    gridTemplateColumns:
+                      "repeat(2, minmax(0, 1fr))",
                     gap: "0.6rem",
                   }}
                 >
@@ -604,7 +619,9 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                       type="number"
                       min={0}
                       value={newItemVanQty}
-                      onChange={(e) => setNewItemVanQty(e.target.value)}
+                      onChange={(e) =>
+                        setNewItemVanQty(e.target.value)
+                      }
                       style={newItemInputStyle}
                     />
                   </div>
@@ -644,7 +661,9 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
             flexWrap: "wrap",
           }}
         >
-          <h2 style={{ fontSize: "1rem", margin: 0 }}>Inventory Items</h2>
+          <h2 style={{ fontSize: "1rem", margin: 0 }}>
+            Inventory Items
+          </h2>
 
           <input
             type="text"
@@ -694,7 +713,8 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                           fontWeight: 600,
                           fontSize: "0.9rem",
                           marginBottom: "0.25rem",
-                          color: "var(--gcss-text, #111827)",
+                          color:
+                            "var(--gcss-text, #111827)",
                         }}
                       >
                         {mfg}
@@ -730,7 +750,8 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                                     color:
                                       "var(--gcss-on-surface, #e5e7eb)",
                                     fontWeight: 600,
-                                    padding: "0.4rem 0.55rem",
+                                    padding:
+                                      "0.4rem 0.55rem",
                                     borderBottom:
                                       "1px solid var(--gcss-border, #4b5563)",
                                     textAlign:
@@ -751,7 +772,8 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                               <tr key={item.id}>
                                 <td
                                   style={{
-                                    padding: "0.35rem 0.55rem",
+                                    padding:
+                                      "0.35rem 0.55rem",
                                     borderBottom:
                                       "1px solid var(--gcss-border, #e5e7eb)",
                                   }}
@@ -760,7 +782,8 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                                 </td>
                                 <td
                                   style={{
-                                    padding: "0.35rem 0.55rem",
+                                    padding:
+                                      "0.35rem 0.55rem",
                                     borderBottom:
                                       "1px solid var(--gcss-border, #e5e7eb)",
                                     whiteSpace: "nowrap",
@@ -770,7 +793,8 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                                 </td>
                                 <td
                                   style={{
-                                    padding: "0.35rem 0.55rem",
+                                    padding:
+                                      "0.35rem 0.55rem",
                                     borderBottom:
                                       "1px solid var(--gcss-border, #e5e7eb)",
                                     whiteSpace: "nowrap",
@@ -780,7 +804,8 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                                 </td>
                                 <td
                                   style={{
-                                    padding: "0.35rem 0.55rem",
+                                    padding:
+                                      "0.35rem 0.55rem",
                                     borderBottom:
                                       "1px solid var(--gcss-border, #e5e7eb)",
                                     textAlign: "right",
@@ -791,7 +816,8 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                                 </td>
                                 <td
                                   style={{
-                                    padding: "0.35rem 0.55rem",
+                                    padding:
+                                      "0.35rem 0.55rem",
                                     borderBottom:
                                       "1px solid var(--gcss-border, #e5e7eb)",
                                     textAlign: "right",
@@ -814,7 +840,7 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
         )}
       </div>
 
-      {/* Optional: simple change history preview */}
+      {/* Recent Changes */}
       <div style={{ marginTop: "1.5rem" }}>
         <div
           style={{
@@ -824,7 +850,9 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
             gap: "0.5rem",
           }}
         >
-          <h2 style={{ fontSize: "1rem", margin: 0 }}>Recent Changes</h2>
+          <h2 style={{ fontSize: "1rem", margin: 0 }}>
+            Recent Changes
+          </h2>
           {onRefreshHistory && (
             <button
               type="button"
@@ -832,8 +860,10 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
               style={{
                 padding: "0.25rem 0.6rem",
                 borderRadius: 999,
-                border: "1px solid var(--gcss-border, #d1d5db)",
-                background: "var(--gcss-surface, #f9fafb)",
+                border:
+                  "1px solid var(--gcss-border, #d1d5db)",
+                background:
+                  "var(--gcss-surface, #f9fafb)",
                 fontSize: "0.75rem",
                 cursor: "pointer",
               }}
@@ -862,7 +892,8 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
               padding: "0.6rem 0.75rem",
               maxHeight: 260,
               overflowY: "auto",
-              background: "var(--gcss-surface, #f9fafb)",
+              background:
+                "var(--gcss-surface, #f9fafb)",
               fontSize: "0.8rem",
             }}
           >
@@ -889,7 +920,8 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                 </div>
                 <div style={{ color: "#9ca3af" }}>
                   {new Date(c.created_at).toLocaleString()} ·{" "}
-                  {c.user_email ?? "Unknown"} ({c.role ?? "N/A"})
+                  {c.user_email ?? "Unknown"} (
+                  {c.role ?? "N/A"})
                 </div>
               </div>
             ))}
