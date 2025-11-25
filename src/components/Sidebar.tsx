@@ -1,6 +1,5 @@
 // src/components/Sidebar.tsx
 import React from "react";
-import type { Session } from "@supabase/supabase-js";
 
 type PageKey = "inventory" | "projects" | "timesheet";
 type UserRole = "admin" | "tech" | "viewer";
@@ -14,161 +13,193 @@ interface Profile {
 interface SidebarProps {
   theme: "light" | "dark";
   onThemeChange: (theme: "light" | "dark") => void;
-  activePage: "inventory" | "projects" | "timesheet";
-  onChangePage: (page: "inventory" | "projects" | "timesheet") => void;
+  activePage: PageKey;
+  onChangePage: (page: PageKey) => void;
   profile: Profile | null;
   isMobile: boolean;
   appVersion: string;
 }
 
-
 const Sidebar: React.FC<SidebarProps> = ({
-  activePage,
-  setActivePage,
   theme,
-  setTheme,
+  onThemeChange,
+  activePage,
+  onChangePage,
   profile,
-  session,
   isMobile,
+  appVersion,
 }) => {
-  const email = profile?.email ?? session?.user.email ?? "";
-  const role = profile?.role ?? "viewer";
+  const navItems: { key: PageKey; label: string }[] = [
+    { key: "inventory", label: "Inventory" },
+    { key: "projects", label: "Projects" },
+    { key: "timesheet", label: "Timesheets" },
+  ];
 
   const handleToggleTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+    onThemeChange(theme === "light" ? "dark" : "light");
   };
 
-  const navButtonStyle = (page: PageKey): React.CSSProperties => ({
-    width: "100%",
-    textAlign: "left",
-    padding: "0.45rem 0.75rem",
-    borderRadius: 4,
-    border: "none",
-    marginBottom: "0.25rem",
-    fontSize: "0.85rem",
-    cursor: "pointer",
-    background:
-      activePage === page
-        ? "rgba(37, 99, 235, 0.35)"
-        : "transparent",
-    color:
-      activePage === page
-        ? "#e5e7eb"
-        : "var(--gcss-sidebar-text, #e5e7eb)",
-  });
-
-  return (
-    <aside
-      style={{
-        width: isMobile ? "100%" : 220,
-        background: "var(--gcss-sidebar-bg, #020617)",
-        color: "var(--gcss-sidebar-text, #e5e7eb)",
-        padding: isMobile ? "0.75rem 0.75rem 0.75rem" : "0.75rem",
-        boxSizing: "border-box",
+  const containerStyle: React.CSSProperties = isMobile
+    ? {
+        width: "100%",
+        borderBottom: "1px solid var(--gcss-border, #e5e7eb)",
+        background: "var(--gcss-surface-strong, #020617)",
+        color: "var(--gcss-on-surface, #e5e7eb)",
+        padding: "0.5rem 0.75rem",
+        display: "flex",
+        alignItems: "center",
+        gap: "0.75rem",
+        position: "sticky",
+        top: 0,
+        zIndex: 20,
+      }
+    : {
+        width: 240,
+        borderRight: "1px solid var(--gcss-border, #e5e7eb)",
+        background: "var(--gcss-surface-strong, #020617)",
+        color: "var(--gcss-on-surface, #e5e7eb)",
+        padding: "1rem 0.9rem",
         display: "flex",
         flexDirection: "column",
-        borderRight: isMobile
-          ? "none"
-          : "1px solid var(--gcss-border, #1f2937)",
-      }}
-    >
-      {/* Header / Identity */}
-      <div style={{ marginBottom: "1rem" }}>
-        <div
-          style={{
-            fontSize: "0.85rem",
-            fontWeight: 600,
-            marginBottom: "0.25rem",
-          }}
-        >
-          GCSS Technician
-        </div>
-        {email && (
+        gap: "1rem",
+      };
+
+  return (
+    <aside style={containerStyle}>
+      {/* Brand + user info */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: isMobile ? "row" : "column",
+          alignItems: isMobile ? "center" : "flex-start",
+          justifyContent: "space-between",
+          gap: isMobile ? "0.75rem" : "0.25rem",
+          width: "100%",
+        }}
+      >
+        <div>
           <div
             style={{
-              fontSize: "0.75rem",
-              color: "var(--gcss-sidebar-muted, #9ca3af)",
+              fontWeight: 700,
+              fontSize: isMobile ? "1rem" : "1.1rem",
             }}
           >
-            {email}
+            GCSS Inventory
           </div>
-        )}
-        <div
-          style={{
-            fontSize: "0.7rem",
-            color: "var(--gcss-sidebar-muted, #9ca3af)",
-          }}
-        >
-          Role: {role}
+          {profile && (
+            <div
+              style={{
+                fontSize: "0.8rem",
+                color: "var(--gcss-muted, #9ca3af)",
+                marginTop: isMobile ? 0 : "0.15rem",
+              }}
+            >
+              {profile.email ?? "Unknown user"}{" "}
+              <span style={{ opacity: 0.8 }}>({profile.role})</span>
+            </div>
+          )}
         </div>
-      </div>
 
-      {/* Navigation */}
-      <nav style={{ marginBottom: "auto" }}>
-        <button
-          type="button"
-          style={navButtonStyle("inventory")}
-          onClick={() => setActivePage("inventory")}
-        >
-          Inventory
-        </button>
-        <button
-          type="button"
-          style={navButtonStyle("projects")}
-          onClick={() => setActivePage("projects")}
-        >
-          Projects
-        </button>
-        <button
-          type="button"
-          style={navButtonStyle("timesheet")}
-          onClick={() => setActivePage("timesheet")}
-        >
-          Timesheet
-        </button>
-      </nav>
-
-      {/* Footer: theme toggle + version label */}
-      <div style={{ marginTop: "1rem", fontSize: "0.75rem" }}>
+        {/* Theme toggle */}
         <button
           type="button"
           onClick={handleToggleTheme}
           style={{
-            width: "100%",
-            padding: "0.4rem 0.6rem",
-            borderRadius: 4,
+            borderRadius: 999,
             border: "1px solid var(--gcss-border, #4b5563)",
-            background: "var(--gcss-sidebar-accent, #111827)",
-            color: "var(--gcss-sidebar-text, #e5e7eb)",
+            padding: "0.15rem 0.6rem",
             fontSize: "0.75rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.25rem",
+            background:
+              theme === "dark"
+                ? "rgba(15,23,42,0.8)"
+                : "rgba(249,250,251,0.06)",
+            color: "inherit",
             cursor: "pointer",
-            marginBottom: "0.4rem",
+            whiteSpace: "nowrap",
           }}
         >
-          Theme: {theme === "light" ? "Light" : "Dark"}
+          <span
+            aria-hidden="true"
+            style={{ fontSize: "0.85rem", lineHeight: 1 }}
+          >
+            {theme === "dark" ? "🌙" : "☀️"}
+          </span>
+          <span>{theme === "dark" ? "Dark" : "Light"}</span>
         </button>
-        <div
-  style={{
-    marginTop: "auto",
-    fontSize: "0.7rem",
-    color: "var(--gcss-muted, #9ca3af)",
-    paddingTop: "0.75rem",
-  }}
->
-  <div>GCSS Inventory</div>
-  <div>v{appVersion}</div>
-</div>
+      </div>
 
+      {/* Navigation */}
+      <nav
+        aria-label="Main navigation"
+        style={{
+          display: "flex",
+          flexDirection: isMobile ? "row" : "column",
+          gap: isMobile ? "0.35rem" : "0.4rem",
+          marginTop: isMobile ? "0.35rem" : "0.5rem",
+          flexWrap: isMobile ? "wrap" : "nowrap",
+        }}
+      >
+        {navItems.map((item) => {
+          const isActive = activePage === item.key;
+          return (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => onChangePage(item.key)}
+              style={{
+                flex: isMobile ? "0 0 auto" : "none",
+                width: isMobile ? "auto" : "100%",
+                textAlign: isMobile ? "center" : "left",
+                padding: "0.4rem 0.7rem",
+                borderRadius: 999,
+                border: "1px solid var(--gcss-border, #4b5563)",
+                background: isActive
+                  ? "rgba(37,99,235,0.9)"
+                  : "transparent",
+                color: isActive ? "#f9fafb" : "var(--gcss-on-surface, #e5e7eb)",
+                fontSize: "0.85rem",
+                fontWeight: isActive ? 600 : 500,
+                cursor: "pointer",
+                boxShadow: isActive
+                  ? "0 0 0 1px rgba(59,130,246,0.5)"
+                  : "none",
+              }}
+            >
+              {item.label}
+            </button>
+          );
+        })}
+      </nav>
 
+      {/* Footer: version (desktop only pinned at bottom, mobile inline) */}
+      {!isMobile && (
         <div
           style={{
-            color: "var(--gcss-sidebar-muted, #9ca3af)",
+            marginTop: "auto",
             fontSize: "0.7rem",
+            color: "var(--gcss-muted, #9ca3af)",
+            paddingTop: "0.75rem",
+            borderTop: "1px solid rgba(148,163,184,0.4)",
           }}
         >
-          GCSS Inventory v0.0.0
+          <div>Version v{appVersion}</div>
         </div>
-      </div>
+      )}
+
+      {isMobile && (
+        <div
+          style={{
+            marginLeft: "auto",
+            fontSize: "0.7rem",
+            color: "var(--gcss-muted, #9ca3af)",
+          }}
+        >
+          v{appVersion}
+        </div>
+      )}
     </aside>
   );
 };
