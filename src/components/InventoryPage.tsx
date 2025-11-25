@@ -79,7 +79,9 @@ interface InventoryPageProps {
   newItemVanQty: string;
   setNewItemVanQty: (value: string) => void;
   creatingItem: boolean;
-  handleCreateItem: (e: React.FormEvent<HTMLFormElement>) => void | Promise<void>;
+  handleCreateItem: (
+    e: React.FormEvent<HTMLFormElement>
+  ) => void | Promise<void>;
 
   handleAdjust: (action: AdjustAction) => void | Promise<void>;
   handleLogout: () => void;
@@ -300,45 +302,29 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                 Item
               </label>
               <select
-  value={selectedItemId === "" ? "" : selectedItemId}
-  onChange={(e) => {
-    const val = e.target.value;
-    setSelectedItemId(val ? Number(val) : "");
-  }}
-  style={{
-    width: "100%",
-    padding: "0.4rem",
-    borderRadius: 4,
-    border: "1px solid var(--gcss-border, #d1d5db)",
-    fontSize: "0.85rem",
-    background: "var(--gcss-input-bg)",
-    color: "var(--gcss-text)",
-  }}
->
-  <option
-    value=""
-    style={{
-      color: "#6b7280",          // muted grey for the placeholder
-      backgroundColor: "#ffffff"
-    }}
-  >
-    Select an item…
-  </option>
-
-  {inventory.map((item) => (
-    <option
-      key={item.id}
-      value={item.id}
-      style={{
-        color: "#111827",        // strong dark text
-        backgroundColor: "#ffffff"
-      }}
-    >
-      {item.description} ({item.model_number}) – {item.manufacturer}
-    </option>
-  ))}
-</select>
-
+                value={selectedItemId === "" ? "" : selectedItemId}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSelectedItemId(val ? Number(val) : "");
+                }}
+                style={{
+                  width: "100%",
+                  padding: "0.4rem",
+                  borderRadius: 4,
+                  border: "1px solid var(--gcss-border, #d1d5db)",
+                  fontSize: "0.85rem",
+                  background: "var(--gcss-input-bg, var(--gcss-surface, #020617))",
+                  color: "var(--gcss-text, #e5e7eb)",
+                }}
+              >
+                <option value="">Select an item…</option>
+                {inventory.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.description} ({item.model_number}) –{" "}
+                    {item.manufacturer}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -475,7 +461,9 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                   <select
                     value={newItemCategory}
                     onChange={(e) =>
-                      setNewItemCategory(e.target.value as InventoryCategory)
+                      setNewItemCategory(
+                        e.target.value as InventoryCategory
+                      )
                     }
                     style={{
                       width: "100%",
@@ -506,7 +494,9 @@ const InventoryPage: React.FC<InventoryPageProps> = ({
                   <input
                     type="text"
                     value={newItemDescription}
-                    onChange={(e) => setNewItemDescription(e.target.value)}
+                    onChange={(e) =>
+                      setNewItemDescription(e.target.value)
+                    }
                     placeholder="e.g. Addressable Smoke Detector"
                     style={newItemInputStyle}
                   />
