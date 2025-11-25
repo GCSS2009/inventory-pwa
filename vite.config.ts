@@ -1,14 +1,16 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react-swc";
 
-const isNative = process.env.BUILD_TARGET === 'native';
-
+// Vite config for GCSS Inventory PWA
 export default defineConfig({
   plugins: [react()],
-  // For GitHub Pages: /inventory-pwa/
-  // For Capacitor APK: ./ so assets resolve under file://
-  base: isNative ? './' : '/inventory-pwa/',
+  // Important for GitHub Pages:
+  // repo is gcss2009.github.io/inventory-pwa
+  base: "/inventory-pwa/",
   build: {
-    outDir: isNative ? 'dist' : 'docs',
+    // Build directly into /docs so GitHub Pages can serve it
+    outDir: "docs",
+    // Clear docs/ before each build so old junk doesn't hang around
+    emptyOutDir: true,
   },
 });
