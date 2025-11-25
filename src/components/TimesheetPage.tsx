@@ -8,22 +8,22 @@ interface Profile {
   role: UserRole;
 }
 
+interface CurrentClockIn {
+  id: number;
+  start_time: string;
+  project: string | null;
+  work_type: string | null;
+}
+
 interface TimesheetEntry {
   id: number;
-  created_at: string;
+  created_at?: string;
   work_date: string;
   project: string | null;
   work_type: string | null;
   hours: number | null;
   clock_in: string | null;
   clock_out: string | null;
-}
-
-interface CurrentClockIn {
-  id: number;
-  start_time: string;
-  project: string | null;
-  work_type: string | null;
 }
 
 interface TimesheetPageProps {
@@ -49,30 +49,15 @@ interface TimesheetPageProps {
   handleLogout: () => void;
 }
 
-function formatRoundedTime(iso: string | null): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-
-  const intervalMs = 15 * 60 * 1000;
-  const rounded = Math.round(d.getTime() / intervalMs) * intervalMs;
-  const rd = new Date(rounded);
-
-  return rd.toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
+// shared input style so it respects theme variables
 const inputBase: React.CSSProperties = {
   width: "100%",
-  padding: "0.4rem 0.55rem",
+  padding: "0.4rem 0.6rem",
   borderRadius: 4,
   border: "1px solid var(--gcss-border, #d1d5db)",
-  background: "var(--gcss-input-bg, #ffffff)",
-  color: "var(--gcss-text, #111827)",
   fontSize: "0.85rem",
-  boxSizing: "border-box",
+  background: "var(--gcss-input-bg, var(--gcss-surface, #020617))",
+  color: "var(--gcss-text, #111827)",
 };
 
 const TimesheetPage: React.FC<TimesheetPageProps> = ({
@@ -92,19 +77,26 @@ const TimesheetPage: React.FC<TimesheetPageProps> = ({
   onDownloadTimesheet,
   handleLogout,
 }) => {
-  const totalHours = React.useMemo(
-    () =>
-      entries.reduce((sum, e) => sum + (e.hours != null ? e.hours : 0), 0),
-    [entries]
+  const totalHours = entries.reduce(
+    (sum, e) => sum + (e.hours ?? 0),
+    0
   );
 
-  const statusText = currentClockIn
-    ? `You are currently clocked in since ${formatRoundedTime(
-        currentClockIn.start_time
-      )}.`
-    : "You are currently clocked out.";
+  const formatTime = (iso: string | null) => {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "—";
+    return d.toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  };
 
-  const statusColor = currentClockIn ? "#16a34a" : "#dc2626";
+  const formatDate = (isoDate: string) => {
+    const d = new Date(isoDate + "T00:00:00");
+    if (Number.isNaN(d.getTime())) return isoDate;
+    return d.toLocaleDateString();
+  };
 
   return (
     <div
@@ -135,7 +127,7 @@ const TimesheetPage: React.FC<TimesheetPageProps> = ({
               }}
             >
               Logged in as{" "}
-              <strong>{profile.email ?? ""}</strong>{" "}
+              <strong>{profile.email}</strong>{" "}
               <span style={{ color: "var(--gcss-muted, #6b7280)" }}>
                 ({profile.role})
               </span>
@@ -160,52 +152,62 @@ const TimesheetPage: React.FC<TimesheetPageProps> = ({
         </button>
       </div>
 
-      {/* Current status */}
-      <div
-        style={{
-          border: "1px solid var(--gcss-border, #d1d5db)",
-          borderRadius: 6,
-          padding: "1rem 1.25rem",
-          marginBottom: "1rem",
-          background: "var(--gcss-surface, #ffffff)",
-        }}
-      >
-        <h2 style={{ marginTop: 0, fontSize: "1rem" }}>Current status</h2>
+      {error && (
         <div
           style={{
-            fontSize: "0.95rem",
+            color: "#dc2626",
             marginBottom: "0.75rem",
+            fontSize: "0.85rem",
           }}
         >
-          You are currently{" "}
-          <span style={{ color: statusColor, fontWeight: 600 }}>
-            {currentClockIn ? "clocked in" : "clocked out"}
-          </span>
-          {currentClockIn && (
+          {error}
+        </div>
+      )}
+
+      {/* Current status card */}
+      <div
+        style={{
+          border: "1px solid var(--gcss-border, #1f2937)",
+          borderRadius: 6,
+          padding: "1rem 1.25rem",
+          background: "var(--gcss-surface, #020617)",
+          marginBottom: "1rem",
+        }}
+      >
+        <h2 style={{ marginTop: 0, fontSize: "1rem" }}>
+          Current status
+        </h2>
+
+        <div style={{ fontSize: "0.95rem", marginBottom: "0.75rem" }}>
+          {currentClockIn ? (
             <>
-              {" "}
+              You are currently{" "}
+              <span style={{ color: "#22c55e", fontWeight: 600 }}>
+                clocked in
+              </span>{" "}
               since{" "}
-              <span style={{ fontWeight: 600 }}>
-                {formatRoundedTime(currentClockIn.start_time)}
-              </span>
-              .
+              <strong>{formatTime(currentClockIn.start_time)}</strong>.
             </>
+          ) : (
+            <>You are currently clocked out.</>
           )}
         </div>
 
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "minmax(0, 2fr) minmax(0, 1.4fr) auto",
+            gridTemplateColumns: "2fr 1.4fr auto",
             gap: "0.75rem",
             alignItems: "end",
+            maxWidth: 750,
           }}
         >
+          {/* Project / Location */}
           <div>
             <label
               style={{
                 display: "block",
-                fontSize: "0.85rem",
+                fontSize: "0.8rem",
                 marginBottom: "0.25rem",
               }}
             >
@@ -220,11 +222,12 @@ const TimesheetPage: React.FC<TimesheetPageProps> = ({
             />
           </div>
 
+          {/* Work type */}
           <div>
             <label
               style={{
                 display: "block",
-                fontSize: "0.85rem",
+                fontSize: "0.8rem",
                 marginBottom: "0.25rem",
               }}
             >
@@ -243,6 +246,7 @@ const TimesheetPage: React.FC<TimesheetPageProps> = ({
             </select>
           </div>
 
+          {/* Clock in / out button */}
           <div
             style={{
               display: "flex",
@@ -254,16 +258,15 @@ const TimesheetPage: React.FC<TimesheetPageProps> = ({
                 type="button"
                 onClick={onClockOut}
                 style={{
-                  padding: "0.55rem 1.3rem",
+                  padding: "0.55rem 1.4rem",
                   borderRadius: 999,
                   border: "none",
-                  background: "#dc2626",
+                  background: "#ef4444",
                   color: "#fef2f2",
+                  fontSize: "0.9rem",
                   fontWeight: 600,
                   cursor: "pointer",
-                  fontSize: "0.9rem",
                   whiteSpace: "nowrap",
-                  alignSelf: "flex-end",
                 }}
               >
                 Clock Out
@@ -273,16 +276,15 @@ const TimesheetPage: React.FC<TimesheetPageProps> = ({
                 type="button"
                 onClick={onClockIn}
                 style={{
-                  padding: "0.55rem 1.3rem",
+                  padding: "0.55rem 1.4rem",
                   borderRadius: 999,
                   border: "none",
                   background: "#16a34a",
                   color: "#f0fdf4",
+                  fontSize: "0.9rem",
                   fontWeight: 600,
                   cursor: "pointer",
-                  fontSize: "0.9rem",
                   whiteSpace: "nowrap",
-                  alignSelf: "flex-end",
                 }}
               >
                 Clock In
@@ -292,98 +294,83 @@ const TimesheetPage: React.FC<TimesheetPageProps> = ({
         </div>
       </div>
 
-      {/* Weekly timesheet */}
+      {/* Weekly summary + export */}
       <div
         style={{
-          border: "1px solid var(--gcss-border, #d1d5db)",
+          border: "1px solid var(--gcss-border, #1f2937)",
           borderRadius: 6,
-          padding: "1rem 1.25rem",
-          marginBottom: "1.5rem",
-          background: "var(--gcss-surface, #ffffff)",
+          padding: "0.9rem 1.1rem",
+          background: "var(--gcss-surface, #020617)",
+          marginBottom: "1.25rem",
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "1.25rem",
+          flexWrap: "wrap",
+          alignItems: "center",
         }}
       >
+        <div>
+          <h2 style={{ margin: 0, fontSize: "1rem" }}>
+            Weekly Timesheet
+          </h2>
+          <div
+            style={{
+              fontSize: "0.9rem",
+              marginTop: "0.25rem",
+            }}
+          >
+            Total hours for selected week:{" "}
+            <strong>{totalHours.toFixed(2)}</strong>
+          </div>
+        </div>
+
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
+            gap: "0.75rem",
             alignItems: "center",
-            gap: "1rem",
             flexWrap: "wrap",
           }}
         >
           <div>
-            <h2 style={{ marginTop: 0, marginBottom: "0.25rem", fontSize: "1rem" }}>
-              Weekly Timesheet
-            </h2>
             <div
               style={{
-                fontSize: "0.9rem",
-                color: "var(--gcss-muted, #6b7280)",
+                fontSize: "0.8rem",
+                marginBottom: "0.2rem",
               }}
             >
-              Total hours for selected week:{" "}
-              <span style={{ fontWeight: 600 }}>{totalHours.toFixed(2)}</span>
+              Week ending (Sunday)
             </div>
+            <input
+              type="date"
+              value={weekEnding}
+              onChange={(e) => setWeekEnding(e.target.value)}
+              style={{
+                ...inputBase,
+                maxWidth: 220,
+              }}
+            />
           </div>
 
-          <div
+          <button
+            type="button"
+            onClick={onDownloadTimesheet}
             style={{
-              display: "flex",
-              gap: "0.75rem",
-              alignItems: "center",
-              flexWrap: "wrap",
+              padding: "0.55rem 1.2rem",
+              borderRadius: 999,
+              border: "none",
+              background: "#2563eb",
+              color: "#eff6ff",
+              fontWeight: 600,
+              fontSize: "0.85rem",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
             }}
           >
-            <div>
-              <div
-                style={{
-                  fontSize: "0.8rem",
-                  marginBottom: "0.25rem",
-                }}
-              >
-                Week ending (Sunday)
-              </div>
-              <input
-                type="date"
-                value={weekEnding}
-                onChange={(e) => setWeekEnding(e.target.value)}
-                style={inputBase}
-              />
-            </div>
-
-            <button
-              type="button"
-              onClick={onDownloadTimesheet}
-              style={{
-                padding: "0.55rem 1.25rem",
-                borderRadius: 999,
-                border: "none",
-                background: "#2563eb",
-                color: "white",
-                fontWeight: 600,
-                cursor: "pointer",
-                fontSize: "0.9rem",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Download GCSS Timesheet
-            </button>
-          </div>
+            Download GCSS Timesheet
+          </button>
         </div>
       </div>
-
-      {/* Error */}
-      {error && (
-        <div
-          style={{
-            marginBottom: "0.75rem",
-            color: "#dc2626",
-            fontSize: "0.85rem",
-          }}
-        >
-          {error}
-        </div>
-      )}
 
       {/* Entries table */}
       <div>
@@ -393,7 +380,7 @@ const TimesheetPage: React.FC<TimesheetPageProps> = ({
 
         {loadingEntries ? (
           <div>Loading entries…</div>
-        ) : !entries.length ? (
+        ) : entries.length === 0 ? (
           <div
             style={{
               fontSize: "0.9rem",
@@ -407,34 +394,98 @@ const TimesheetPage: React.FC<TimesheetPageProps> = ({
             <table
               style={{
                 width: "100%",
-                minWidth: 720,
                 borderCollapse: "collapse",
                 fontSize: "0.85rem",
+                minWidth: 720,
               }}
             >
               <thead>
                 <tr>
-                  <th style={thStyleLeft}>Date</th>
-                  <th style={thStyleLeft}>Project / Location</th>
-                  <th style={thStyleLeft}>Type</th>
-                  <th style={thStyleLeft}>Clock in</th>
-                  <th style={thStyleLeft}>Clock out</th>
-                  <th style={thStyleRight}>Hours</th>
+                  {["Date", "Project / Location", "Type", "Clock in", "Clock out", "Hours"].map(
+                    (label) => (
+                      <th
+                        key={label}
+                        style={{
+                          background:
+                            "var(--gcss-surface-strong, #020617)",
+                          color: "var(--gcss-on-surface, #e5e7eb)",
+                          fontWeight: 600,
+                          padding: "0.45rem 0.6rem",
+                          borderBottom:
+                            "1px solid var(--gcss-border, #4b5563)",
+                          textAlign:
+                            label === "Hours" ? "right" : "left",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {label}
+                      </th>
+                    )
+                  )}
                 </tr>
               </thead>
               <tbody>
-                {entries.map((e) => (
-                  <tr key={e.id}>
-                    <td style={tdStyle}>
-                      {e.work_date ||
-                        new Date(e.created_at).toLocaleDateString()}
+                {entries.map((entry) => (
+                  <tr key={entry.id}>
+                    <td
+                      style={{
+                        padding: "0.4rem 0.6rem",
+                        borderBottom:
+                          "1px solid var(--gcss-border, #e5e7eb)",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {formatDate(entry.work_date)}
                     </td>
-                    <td style={tdStyle}>{e.project ?? ""}</td>
-                    <td style={tdStyle}>{e.work_type ?? ""}</td>
-                    <td style={tdStyle}>{formatRoundedTime(e.clock_in)}</td>
-                    <td style={tdStyle}>{formatRoundedTime(e.clock_out)}</td>
-                    <td style={tdStyleRight}>
-                      {e.hours != null ? e.hours.toFixed(2) : "0.00"}
+                    <td
+                      style={{
+                        padding: "0.4rem 0.6rem",
+                        borderBottom:
+                          "1px solid var(--gcss-border, #e5e7eb)",
+                      }}
+                    >
+                      {entry.project ?? ""}
+                    </td>
+                    <td
+                      style={{
+                        padding: "0.4rem 0.6rem",
+                        borderBottom:
+                          "1px solid var(--gcss-border, #e5e7eb)",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {entry.work_type ?? ""}
+                    </td>
+                    <td
+                      style={{
+                        padding: "0.4rem 0.6rem",
+                        borderBottom:
+                          "1px solid var(--gcss-border, #e5e7eb)",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {formatTime(entry.clock_in)}
+                    </td>
+                    <td
+                      style={{
+                        padding: "0.4rem 0.6rem",
+                        borderBottom:
+                          "1px solid var(--gcss-border, #e5e7eb)",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {formatTime(entry.clock_out)}
+                    </td>
+                    <td
+                      style={{
+                        padding: "0.4rem 0.6rem",
+                        borderBottom:
+                          "1px solid var(--gcss-border, #e5e7eb)",
+                        textAlign: "right",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {(entry.hours ?? 0).toFixed(2)}
                     </td>
                   </tr>
                 ))}
@@ -445,35 +496,6 @@ const TimesheetPage: React.FC<TimesheetPageProps> = ({
       </div>
     </div>
   );
-};
-
-const thStyleBase: React.CSSProperties = {
-  borderBottom: "1px solid var(--gcss-border, #d1d5db)",
-  padding: "0.4rem 0.55rem",
-  background: "rgba(148,163,184,0.25)",
-  color: "var(--gcss-text, #111827)",
-  textAlign: "left",
-};
-
-const thStyleLeft: React.CSSProperties = {
-  ...thStyleBase,
-  textAlign: "left",
-};
-
-const thStyleRight: React.CSSProperties = {
-  ...thStyleBase,
-  textAlign: "right",
-};
-
-const tdStyle: React.CSSProperties = {
-  borderBottom: "1px solid var(--gcss-border, #e5e7eb)",
-  padding: "0.35rem 0.55rem",
-  whiteSpace: "nowrap",
-};
-
-const tdStyleRight: React.CSSProperties = {
-  ...tdStyle,
-  textAlign: "right",
 };
 
 export default TimesheetPage;
