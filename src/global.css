@@ -237,49 +237,35 @@ select option {
   color: #111827 !important;
 }
 
-/* ===== Mobile sidebar hamburger ===== */
+/* ===== Mobile header / hamburger ===== */
 
-.sidebar-toggle {
-  position: fixed;
-  top: max(env(safe-area-inset-top, 0px), 10px);
-  left: 12px;
-  z-index: 50;
+.mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.75rem;
+  background: var(--gcss-surface);
+  border-bottom: 1px solid var(--gcss-border);
+  position: sticky;
+  top: max(env(safe-area-inset-top, 0px), 0px);
+  z-index: 40;
+}
+
+.hamburger-btn {
   border-radius: 999px;
   border: 1px solid var(--gcss-border);
   background: var(--gcss-surface);
   color: var(--gcss-text);
-  padding: 0.35rem 0.55rem;
-  box-shadow: var(--gcss-shadow-soft);
+  padding: 0.25rem 0.55rem;
+  font-size: 1.1rem;
+  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Simple 3-bar icon built from one span */
-.sidebar-toggle span {
-  display: block;
-  width: 18px;
-  height: 2px;
-  background: currentColor;
-  border-radius: 999px;
-  position: relative;
-}
-
-.sidebar-toggle span::before,
-.sidebar-toggle span::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  width: 18px;
-  height: 2px;
-  background: currentColor;
-  border-radius: 999px;
-}
-
-.sidebar-toggle span::before {
-  top: -5px;
-}
-
-.sidebar-toggle span::after {
-  top: 5px;
+.header-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--gcss-text);
 }
