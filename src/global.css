@@ -15,14 +15,14 @@
   --gcss-sidebar-muted: #9ca3af;
   --gcss-sidebar-accent: #111827;
 
-  --gcss-red: #e53935;      /* flame red */
-  --gcss-blue: #1565c0;     /* wreath blue */
+  --gcss-red: #e53935; /* flame red */
+  --gcss-blue: #1565c0; /* wreath blue */
 
   --gcss-radius-sm: 4px;
   --gcss-radius-md: 6px;
   --gcss-radius-lg: 10px;
 
-  --gcss-shadow-soft: 0 2px 8px rgba(0,0,0,0.06);
+  --gcss-shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 /* Dark theme overrides */
@@ -41,7 +41,7 @@
   --gcss-red: #f97373;
   --gcss-blue: #60a5fa;
 
-  --gcss-shadow-soft: 0 2px 10px rgba(0,0,0,0.45);
+  --gcss-shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.45);
 }
 
 /* ===== Base reset & typography ===== */
@@ -165,12 +165,12 @@ textarea::placeholder {
 button {
   cursor: pointer;
   transition: background-color 0.15s ease, box-shadow 0.15s ease,
-              transform 0.1s ease;
+    transform 0.1s ease;
 }
 
 button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.14);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.14);
 }
 
 /* ===== Tables ===== */
@@ -235,4 +235,51 @@ select option {
 :root[data-theme="light"] .projects-select option {
   background-color: #ffffff !important;
   color: #111827 !important;
+}
+
+/* ===== Mobile sidebar hamburger ===== */
+
+.sidebar-toggle {
+  position: fixed;
+  top: max(env(safe-area-inset-top, 0px), 10px);
+  left: 12px;
+  z-index: 50;
+  border-radius: 999px;
+  border: 1px solid var(--gcss-border);
+  background: var(--gcss-surface);
+  color: var(--gcss-text);
+  padding: 0.35rem 0.55rem;
+  box-shadow: var(--gcss-shadow-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Simple 3-bar icon built from one span */
+.sidebar-toggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 999px;
+  position: relative;
+}
+
+.sidebar-toggle span::before,
+.sidebar-toggle span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 999px;
+}
+
+.sidebar-toggle span::before {
+  top: -5px;
+}
+
+.sidebar-toggle span::after {
+  top: 5px;
 }
