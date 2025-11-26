@@ -840,7 +840,7 @@ const App: React.FC = () => {
     setSavingProjectItem(true);
 
     const { error } = await supabase.from("project_items").insert({
-      project_id: Number(selectedProjectId),
+      project_id: selectedProjectId,
       item_id: null,
       description: desc,
       model_number: model,
