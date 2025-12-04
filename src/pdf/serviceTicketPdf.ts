@@ -130,6 +130,7 @@ const laborRowsTL: {
 ];
 
 const totalsTL = {
+  materialTotal: { x: 1020, y: 1070 } as TL,       // NEW: material total box
   laborTotalHours: { x: 880, y: 1285 } as TL,
   laborTotalLabor: { x: 1030, y: 1285 } as TL,
   grandTotal: { x: 1030, y: 1315 } as TL,
@@ -376,6 +377,10 @@ export async function generateServiceTicketPdfFromPayload(
   // -------------
   // Totals
   // -------------
+  const materialTotal =
+    payload.material_total ??
+    payload.materials.reduce((sum, m) => sum + (m.total || 0), 0);
+
   const totalLaborHours = payload.labor.reduce(
     (sum, l) => sum + (l.total_hours || 0),
     0
@@ -388,6 +393,14 @@ export async function generateServiceTicketPdfFromPayload(
   const grandTotal =
     payload.grand_total ??
     ((payload.material_total || 0) + (payload.labor_total || 0));
+
+  // NEW: draw material total into its box
+  drawText(
+    page,
+    formatCurrency(materialTotal),
+    totalsTL.materialTotal,
+    pageHeight
+  );
 
   drawText(
     page,
