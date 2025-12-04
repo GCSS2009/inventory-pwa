@@ -1,8 +1,9 @@
+// src/hooks/usePushSubscription.ts
 import { useEffect } from "react";
 import { supabase } from "../supabaseClient";
+import type { Platform } from "../types";
 
-// Use your VAPID public key from .env
-// VITE_VAPID_PUBLIC_KEY should be defined in your Vite env.
+// VAPID public key from .env (Vite style)
 const VAPID_PUBLIC_KEY = import.meta.env
   .VITE_VAPID_PUBLIC_KEY as string | undefined;
 
@@ -21,47 +22,60 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray;
 }
 
+/**
+ * Hooks up web push for PWA / browser usage.
+ * Called from App with: usePushSubscription(session?.user?.id, platform)
+ */
 export function usePushSubscription(
   userId: string | undefined,
-  platform: string
+  platform: Platform
 ) {
   useEffect(() => {
-    // SSR / safety guard
+    // SSR / safety
     if (typeof window === "undefined") return;
-
-    console.log("[Push] Hook run. userId:", userId, "platform:", platform);
-
-    if (!userId) {
-      console.log("[Push] No userId, skipping push setup.");
-      return;
-    }
-
-    if (!("Notification" in window)) {
-      console.log("[Push] Notifications not supported in this browser.");
-      return;
-    }
-
-    if (!("serviceWorker" in navigator)) {
-      console.log("[Push] Service workers not supported.");
-      return;
-    }
-
-    if (!VAPID_PUBLIC_KEY) {
-      console.error(
-        "[Push] Missing VITE_VAPID_PUBLIC_KEY; cannot subscribe to push."
-      );
-      return;
-    }
 
     let cancelled = false;
 
     async function setup() {
+      console.log("[Push] Hook run. userId:", userId, "platform:", platform);
+
+      if (!userId) {
+        console.log("[Push] No user, skipping push setup.");
+        return;
+      }
+
+      // If/when you use native push via Capacitor for the APK,
+      // you do NOT want web push on that path.
+      if (platform === "android_apk") {
+        console.log("[Push] Android APK detected, skipping web push.");
+        return;
+      }
+
+      if (!VAPID_PUBLIC_KEY) {
+        console.warn(
+          "[Push] VITE_VAPID_PUBLIC_KEY is not set; skipping web push."
+        );
+        return;
+      }
+
+      if (
+        !("serviceWorker" in navigator) ||
+        !("PushManager" in window) ||
+        !("Notification" in window)
+      ) {
+        console.warn(
+          "[Push] This environment does not support ServiceWorker/Push/Notification."
+        );
+        return;
+      }
+
+      const swUrl = `${import.meta.env.BASE_URL}push-sw.js`;
+      console.log("[Push] Registering service worker at:", swUrl);
+
       try {
-        const swUrl = `${import.meta.env.BASE_URL}push-sw.js`;
-console.log("[Push] Registering service worker at:", swUrl);
+        const registration = await navigator.serviceWorker.register(swUrl);
 
-const registration = await navigator.serviceWorker.register(swUrl);
-
+        if (cancelled) return;
 
         console.log(
           "[Push] Current notification permission:",
@@ -77,7 +91,9 @@ const registration = await navigator.serviceWorker.register(swUrl);
 
         if (permission !== "granted") {
           console.log(
-            "[Push] Permission not granted, aborting push subscription."
+            "[Push] Notifications not granted (permission =",
+            permission,
+            "), skipping push subscription."
           );
           return;
         }

@@ -18,19 +18,20 @@ self.addEventListener("push", (event) => {
   try {
     payload = event.data.json();
   } catch (e) {
-    console.error("[SW] Failed to parse push payload:", e);
+    console.error("[SW] Failed to parse push payload as JSON:", e);
     return;
   }
 
-  const title = payload.title || "Notification";
+  const title = payload.title || "GCSS";
   const body = payload.body || "";
   const data = payload.data || {};
 
   const options = {
     body,
     data,
-    icon: "/icon-192.png",
-    badge: "/icon-192.png",
+    // You have these under public/icons
+    icon: "/icons/gcss-icon-light-192.png",
+    badge: "/icons/gcss-icon-light-192.png",
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
@@ -38,7 +39,7 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = event.notification.data?.url || "/";
+  const url = event.notification.data?.url || "/inventory-pwa/";
 
   event.waitUntil(
     self.clients
