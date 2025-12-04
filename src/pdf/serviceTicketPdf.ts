@@ -53,37 +53,37 @@ const materialRowsTL: {
     qty: { x: 100, y: 900 },
     description: { x: 170, y: 900 },
     cost: { x: 880, y: 900 },
-    total: { x: 1040, y: 900 },
+    total: { x: 1020, y: 900 },
   },
   {
     qty: { x: 100, y: 935 },
     description: { x: 170, y: 935 },
     cost: { x: 880, y: 935 },
-    total: { x: 1040, y: 935 },
+    total: { x: 1020, y: 935 },
   },
   {
     qty: { x: 100, y: 960 },
     description: { x: 170, y: 960 },
     cost: { x: 880, y: 960 },
-    total: { x: 1040, y: 960 },
+    total: { x: 1020, y: 960 },
   },
   {
     qty: { x: 100, y: 985 },
     description: { x: 170, y: 985 },
     cost: { x: 880, y: 985 },
-    total: { x: 1040, y: 985 },
+    total: { x: 1020, y: 985 },
   },
   {
     qty: { x: 100, y: 1015 },
     description: { x: 170, y: 1015 },
     cost: { x: 880, y: 1015 },
-    total: { x: 1040, y: 1015 },
+    total: { x: 1020, y: 1015 },
   },
   {
     qty: { x: 100, y: 1045 },
     description: { x: 170, y: 1045 },
     cost: { x: 880, y: 1045 },
-    total: { x: 1040, y: 1045 },
+    total: { x: 1020, y: 1045 },
   },
 ];
 
@@ -132,8 +132,8 @@ const laborRowsTL: {
 const totalsTL = {
   materialTotal: { x: 1020, y: 1070 } as TL,       // NEW: material total box
   laborTotalHours: { x: 880, y: 1285 } as TL,
-  laborTotalLabor: { x: 1030, y: 1285 } as TL,
-  grandTotal: { x: 1030, y: 1315 } as TL,
+  laborTotalLabor: { x: 1020, y: 1285 } as TL,
+  grandTotal: { x: 1020, y: 1315 } as TL,
 };
 
 const signatureTL = {
