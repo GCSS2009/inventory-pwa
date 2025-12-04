@@ -333,42 +333,40 @@ const ServiceTicketPage: React.FC<Props> = ({
     closeSignatureModal();
   };
 
-  const buildPayload = (): NewServiceTicketPayload => ({
-    customer_name: customerName,
-    address,
-    city,
-    state: stateVal,
-    zip,
-    billing_email: billingEmail,
-    billing_address: billingAddress,
-    billing_city: billingCity,
-    billing_state: billingState,
-    billing_zip: billingZip,
-    customer_po: customerPO,
-    technician,
-    service_work: serviceWork,
-    materials,
-    labor,
-    material_total: materialTotal,
-    labor_total: laborTotal,
-    grand_total: grandTotal,
-    signature_name: signatureName,
-    signature_date: signatureDate,
-    // assuming NewServiceTicketPayload has this optional field
-    signature: signatureDataUrl || undefined,
-  });
+  const buildPayload = (): NewServiceTicketPayload => {
+    const payload: NewServiceTicketPayload = {
+      customer_name: customerName,
+      address,
+      city,
+      state: stateVal,
+      zip,
+      billing_email: billingEmail,
+      billing_address: billingAddress,
+      billing_city: billingCity,
+      billing_state: billingState,
+      billing_zip: billingZip,
+      customer_po: customerPO,
+      technician,
+      service_work: serviceWork,
+      materials,
+      labor,
+      material_total: materialTotal,
+      labor_total: laborTotal,
+      grand_total: grandTotal,
+      signature_name: signatureName,
+      signature_date: signatureDate,
+      signature: signatureDataUrl || undefined,
+    };
 
- 
+    console.log("Service ticket payload going to PDF:", payload);
+    return payload;
+  };
 
   const handleExportPdf = async () => {
     const payload = buildPayload();
 
     try {
       const pdfBytes = await generateServiceTicketPdfFromPayload(payload);
-
-      // Local download
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
 
       const safeName =
         customerName.trim().replace(/[\\/:*?"<>|]/g, "_") || "customer";
@@ -378,15 +376,7 @@ const ServiceTicketPage: React.FC<Props> = ({
       const dd = String(today.getDate()).padStart(2, "0");
       const fileName = `${safeName} ${yyyy}-${mm}-${dd}.pdf`;
 
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
-      // Upload to Supabase Edge function (OneDrive backend)
+      // 1) Upload to Supabase Edge function (OneDrive backend) FIRST
       try {
         const response = await fetch(EDGE_FUNCTION_URL, {
           method: "POST",
@@ -403,6 +393,21 @@ const ServiceTicketPage: React.FC<Props> = ({
       } catch (err) {
         console.error("OneDrive upload failed (network):", err);
       }
+
+      // 2) Local download / open AFTER upload
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      // new tab so iOS doesn't kill the JS context
+      link.target = "_blank";
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Error generating service ticket PDF:", err);
     }
@@ -814,7 +819,6 @@ const ServiceTicketPage: React.FC<Props> = ({
             className="button-row"
             style={{ marginTop: "1rem", gap: "0.75rem" }}
           >
-            
             <button type="button" onClick={handleExportPdf}>
               Export PDF
             </button>
@@ -860,7 +864,11 @@ const ServiceTicketPage: React.FC<Props> = ({
                   ref={canvasRef}
                   width={600}
                   height={200}
-                  style={{ width: "100%", height: "200px", touchAction: "none" }}
+                  style={{
+                    width: "100%",
+                    height: "200px",
+                    touchAction: "none",
+                  }}
                   onMouseDown={handleSignatureStart}
                   onMouseMove={handleSignatureMove}
                   onMouseUp={handleSignatureEnd}
