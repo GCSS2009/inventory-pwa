@@ -18,276 +18,359 @@ type TL = { x: number; y: number };
 
 const coordsTL = {
   customerName: { x: 230, y: 345 } as TL,
+  address: { x: 180, y: 375 } as TL,
+  city: { x: 140, y: 403 } as TL,
+  state: { x: 387, y: 403 } as TL,
+  zip: { x: 498, y: 403 } as TL,
 
-  address: { x: 160, y: 370 } as TL,
-  city: { x: 550, y: 370 } as TL,
-  state: { x: 745, y: 370 } as TL,
-  zip: { x: 845, y: 370 } as TL,
+  billingEmail: { x: 780, y: 280 } as TL,
+  billingAddress: { x: 780, y: 315 } as TL,
 
-  billingEmail: { x: 280, y: 395 } as TL,
-  billingAddress: { x: 160, y: 455 } as TL,
-  billingCity: { x: 550, y: 455 } as TL,
-  billingState: { x: 740, y: 455 } as TL,
-  billingZip: { x: 840, y: 455 } as TL,
+  phone: { x: 105, y: 430 } as TL,
+  email: { x: 360, y: 430 } as TL,
 
-  technician: { x: 190, y: 505 } as TL,
+  technician: { x: 160, y: 455 } as TL,
+  ticketNumber: { x: 620, y: 345 } as TL,
+  date: { x: 900, y: 345 } as TL,
 
-  // Service Work Performed text box
-  serviceWork: { x: 100, y: 600 } as TL,
-};
+  // Problems
+  problem1: { x: 90, y: 510 } as TL,
+  problem2: { x: 90, y: 532 } as TL,
+  problem3: { x: 90, y: 555 } as TL,
+  problem4: { x: 90, y: 578 } as TL,
+  problem5: { x: 90, y: 600 } as TL,
 
-// Box for Service Work Performed in *pixel* coords
-const serviceWorkBox = {
-  topLeft: { x: 100, y: 600 },
-  widthPx: 1080 - 100, // 945 px
-  heightPx: 220,       // from y:900 to y:1000
-};
+  // Notes
+  notes1: { x: 90, y: 650 } as TL,
+  notes2: { x: 90, y: 670 } as TL,
+  notes3: { x: 90, y: 690 } as TL,
+  notes4: { x: 90, y: 710 } as TL,
+  notes5: { x: 90, y: 730 } as TL,
+  notes6: { x: 90, y: 750 } as TL,
+  notes7: { x: 90, y: 770 } as TL,
 
-const materialRowsTL: {
-  qty: TL;
-  description: TL;
-  cost: TL;
-  total: TL;
-}[] = [
-  {
-    qty: { x: 100, y: 900 },
-    description: { x: 170, y: 900 },
-    cost: { x: 880, y: 900 },
-    total: { x: 1040, y: 900 },
-  },
-  {
-    qty: { x: 100, y: 935 },
-    description: { x: 170, y: 935 },
-    cost: { x: 880, y: 935 },
-    total: { x: 1040, y: 935 },
-  },
-  {
-    qty: { x: 100, y: 960 },
-    description: { x: 170, y: 960 },
-    cost: { x: 880, y: 960 },
-    total: { x: 1040, y: 960 },
-  },
-  {
-    qty: { x: 100, y: 985 },
-    description: { x: 170, y: 985 },
-    cost: { x: 880, y: 985 },
-    total: { x: 1040, y: 985 },
-  },
-  {
-    qty: { x: 100, y: 1015 },
-    description: { x: 170, y: 1015 },
-    cost: { x: 880, y: 1015 },
-    total: { x: 1040, y: 1015 },
-  },
-  {
-    qty: { x: 100, y: 1045 },
-    description: { x: 170, y: 1045 },
-    cost: { x: 880, y: 1045 },
-    total: { x: 1040, y: 1045 },
-  },
-];
+  // Recommendations
+  rec1: { x: 90, y: 830 } as TL,
+  rec2: { x: 90, y: 850 } as TL,
+  rec3: { x: 90, y: 870 } as TL,
+  rec4: { x: 90, y: 890 } as TL,
+  rec5: { x: 90, y: 910 } as TL,
 
-const laborRowsTL: {
-  techDate: TL;
-  rateHr: TL;
-  timeIn: TL;
-  timeOut: TL;
-  totalHours: TL;
-  totalLabor: TL;
-}[] = [
-  {
-    techDate: { x: 90, y: 1170 },
-    rateHr: { x: 290, y: 1170 },
-    timeIn: { x: 410, y: 1170 },
-    timeOut: { x: 590, y: 1170 },
-    totalHours: { x: 870, y: 1170 },
-    totalLabor: { x: 1020, y: 1170 },
-  },
-  {
-    techDate: { x: 90, y: 1200 },
-    rateHr: { x: 300, y: 1200 },
-    timeIn: { x: 410, y: 1200 },
-    timeOut: { x: 590, y: 1200 },
-    totalHours: { x: 870, y: 1200 },
-    totalLabor: { x: 1020, y: 1200 },
-  },
-  {
-    techDate: { x: 90, y: 1225 },
-    rateHr: { x: 300, y: 1225 },
-    timeIn: { x: 410, y: 1225 },
-    timeOut: { x: 590, y: 1225 },
-    totalHours: { x: 870, y: 1225 },
-    totalLabor: { x: 1020, y: 1225 },
-  },
-  {
-    techDate: { x: 90, y: 1255 },
-    rateHr: { x: 300, y: 1255 },
-    timeIn: { x: 410, y: 1255 },
-    timeOut: { x: 590, y: 1255 },
-    totalHours: { x: 870, y: 1255 },
-    totalLabor: { x: 1020, y: 1255 },
-  },
-];
+  // Line items: 7 rows
+  lineItems: [
+    {
+      qty: { x: 100, y: 910 },
+      description: { x: 170, y: 910 },
+      cost: { x: 880, y: 910 },
+      total: { x: 1040, y: 910 },
+    },
+    {
+      qty: { x: 100, y: 935 },
+      description: { x: 170, y: 935 },
+      cost: { x: 880, y: 935 },
+      total: { x: 1040, y: 935 },
+    },
+    {
+      qty: { x: 100, y: 960 },
+      description: { x: 170, y: 960 },
+      cost: { x: 880, y: 960 },
+      total: { x: 1040, y: 960 },
+    },
+    {
+      qty: { x: 100, y: 985 },
+      description: { x: 170, y: 985 },
+      cost: { x: 880, y: 985 },
+      total: { x: 1040, y: 985 },
+    },
+    {
+      qty: { x: 100, y: 1015 },
+      description: { x: 170, y: 1015 },
+      cost: { x: 880, y: 1015 },
+      total: { x: 1040, y: 1015 },
+    },
+    {
+      qty: { x: 100, y: 1040 },
+      description: { x: 170, y: 1040 },
+      cost: { x: 880, y: 1040 },
+      total: { x: 1040, y: 1040 },
+    },
+    {
+      qty: { x: 100, y: 1065 },
+      description: { x: 170, y: 1065 },
+      cost: { x: 880, y: 1065 },
+      total: { x: 1040, y: 1065 },
+    },
+  ] as {
+    qty: TL;
+    description: TL;
+    cost: TL;
+    total: TL;
+  }[],
 
-const totalsTL = {
-  laborTotalHours: { x: 880, y: 1285 } as TL,
-  laborTotalLabor: { x: 1030, y: 1285 } as TL,
-  grandTotal: { x: 1030, y: 1315 } as TL,
-};
+  subTotal: { x: 1040, y: 1096 } as TL,
+  tax: { x: 1040, y: 1120 } as TL,
+  totalAmount: { x: 1040, y: 1145 } as TL,
 
-const signatureTL = {
-  customerSignature: { x: 290, y: 1420 } as TL, // image later
-  namePrinted: { x: 290, y: 1450 } as TL,
-  date: { x: 1000, y: 1420 } as TL,
-};
+  // Signature + date (these are *bottom-left* anchors roughly)
+  signature: { x: 170, y: 1170 } as TL,
+  signatureDate: { x: 650, y: 1170 } as TL,
 
-function fromTopLeftToPdf(tl: TL, pageHeight: number) {
-  return {
-    x: tl.x / SCALE,
-    y: pageHeight - tl.y / SCALE,
-  };
+  // Work dates
+  workStart: { x: 330, y: 1185 } as TL,
+  workEnd: { x: 330, y: 1210 } as TL,
+
+  // Time in/out
+  timeIn: { x: 160, y: 1238 } as TL,
+  timeOut: { x: 160, y: 1260 } as TL,
+  totalHours: { x: 420, y: 1250 } as TL,
+} as const;
+
+function toPdfPointX(xPx: number): number {
+  return xPx / SCALE;
+}
+
+function toPdfPointY(yPx: number, pageHeight: number): number {
+  return pageHeight - yPx / SCALE;
 }
 
 function drawText(
   page: PDFPage,
-  text: string | number | null | undefined,
+  text: string | null | undefined,
   tl: TL,
   pageHeight: number,
-  size = 10
-) {
-  const value =
-    text === null || text === undefined
-      ? ""
-      : typeof text === "number"
-      ? text.toString()
-      : text;
-
-  const { x, y } = fromTopLeftToPdf(tl, pageHeight);
-  page.drawText(value, {
-    x,
-    y,
-    size,
-    color: rgb(0, 0, 0),
-  });
-}
-
-// ---------- Formatting helpers ----------
-function formatCurrency(amount: number | null | undefined): string {
-  const n = Number(amount ?? 0);
-  return `$${n.toFixed(2)}`;
-}
-
-// Convert "HH:MM" (24h) to "H:MM AM/PM"
-function formatTime12h(time: string | null | undefined): string {
-  if (!time) return "";
-  const [hhStr, mmStr] = time.split(":");
-  const hh = Number(hhStr);
-  const mm = Number(mmStr);
-  if (Number.isNaN(hh) || Number.isNaN(mm)) return time;
-
-  const suffix = hh >= 12 ? "PM" : "AM";
-  const hour12 = ((hh + 11) % 12) + 1; // 0->12, 13->1, etc.
-  return `${hour12}:${mmStr.padStart(2, "0")} ${suffix}`;
-}
-
-function dataUrlToUint8Array(dataUrl: string): Uint8Array {
-  const parts = dataUrl.split(",");
-  const base64 = parts[1] ?? "";
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
+  options?: {
+    size?: number;
+    maxWidth?: number;
+    align?: "left" | "center" | "right";
   }
-  return bytes;
-}
-
-// Very dumb text wrapper, but good enough for a fixed-width box.
-// Works in *pixel* coordinates, converts to PDF points.
-function drawWrappedTextInBox(
-  page: PDFPage,
-  text: string,
-  tlPx: TL,
-  boxWidthPx: number,
-  boxHeightPx: number,
-  pageHeight: number,
-  fontSize = 9
 ) {
-  if (!text.trim()) return;
+  const value = (text ?? "").toString().trim();
+  if (!value) return;
 
-  const boxWidthPt = boxWidthPx / SCALE;
-  const boxHeightPt = boxHeightPx / SCALE;
-  const lineHeight = fontSize * 1.2;
+  const size = options?.size ?? 10;
+  const maxWidth = options?.maxWidth ?? 0;
+  const align = options?.align ?? "left";
 
-  const maxLines = Math.max(1, Math.floor(boxHeightPt / lineHeight));
+  const x = toPdfPointX(tl.x);
+  const y = toPdfPointY(tl.y, pageHeight);
 
-  // Very rough character width estimate
-  const maxCharsPerLine = Math.max(
-    5,
-    Math.floor(boxWidthPt / (fontSize * 0.5))
-  );
+  if (!maxWidth || value.length < maxWidth / (size * 0.6)) {
+    // Single line
+    let drawX = x;
+    if (align === "center") {
+      drawX = x - (value.length * size * 0.3) / 2;
+    } else if (align === "right") {
+      drawX = x - value.length * size * 0.6;
+    }
 
-  const words = text.replace(/\r\n/g, "\n").split(/\s+/);
+    page.drawText(value, {
+      x: drawX,
+      y,
+      size,
+      color: rgb(0, 0, 0),
+    });
+    return;
+  }
+
+  // Naive multi-line wrapping
+  const words = value.split(/\s+/);
   const lines: string[] = [];
   let current = "";
 
+  const approxCharsPerLine = Math.floor(maxWidth / (size * 0.6));
   for (const word of words) {
-    const test =
-      current.length === 0 ? word : current + " " + word;
-    if (test.length > maxCharsPerLine) {
-      if (current.length > 0) {
-        lines.push(current);
-        current = word;
-      } else {
-        // word itself longer than line, hard-split
-        lines.push(test.slice(0, maxCharsPerLine));
-        current = test.slice(maxCharsPerLine);
-      }
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length > approxCharsPerLine && current) {
+      lines.push(current);
+      current = word;
     } else {
-      current = test;
+      current = candidate;
     }
   }
-  if (current.length > 0) {
-    lines.push(current);
-  }
+  if (current) lines.push(current);
 
-  // Clip to maxLines, add "…" if we had to cut
-  let clipped = false;
-  if (lines.length > maxLines) {
-    clipped = true;
-  }
-  const finalLines = lines.slice(0, maxLines);
-  if (clipped) {
-    const last = finalLines[finalLines.length - 1];
-    finalLines[finalLines.length - 1] =
-      last.length > 3 ? last.slice(0, last.length - 3) + "..." : last + "...";
-  }
+  const lineHeight = size * 1.2;
+  lines.forEach((line, index) => {
+    let lineX = x;
+    if (align === "center") {
+      lineX = x - (line.length * size * 0.3) / 2;
+    } else if (align === "right") {
+      lineX = x - line.length * size * 0.6;
+    }
 
-  const start = fromTopLeftToPdf(tlPx, pageHeight);
-  let y = start.y;
-
-  for (let i = 0; i < finalLines.length; i++) {
-    const line = finalLines[i];
     page.drawText(line, {
-      x: start.x,
-      y,
-      size: fontSize,
+      x: lineX,
+      y: y - index * lineHeight,
+      size,
       color: rgb(0, 0, 0),
     });
-    y -= lineHeight;
+  });
+}
+
+function formatCurrency(value: number | null | undefined): string {
+  if (value == null || isNaN(value)) return "";
+  return `$${value.toFixed(2)}`;
+}
+
+function safeNumber(n: unknown): number | null {
+  if (typeof n === "number" && !isNaN(n)) return n;
+  if (typeof n === "string" && n.trim() !== "") {
+    const parsed = Number(n);
+    return isNaN(parsed) ? null : parsed;
+  }
+  return null;
+}
+
+function drawLineItems(
+  page: PDFPage,
+  payload: NewServiceTicketPayload,
+  pageHeight: number
+) {
+  const items = payload.line_items ?? [];
+  const coords = coordsTL.lineItems;
+
+  for (let i = 0; i < coords.length; i++) {
+    const item = items[i];
+    const row = coords[i];
+    if (!item) continue;
+
+    const qty = safeNumber(item.qty);
+    const cost = safeNumber(item.cost);
+    const total = safeNumber(item.total);
+
+    if (qty != null) {
+      drawText(page, qty.toString(), row.qty, pageHeight, {
+        align: "center",
+      });
+    }
+
+    if (item.description) {
+      drawText(page, item.description, row.description, pageHeight, {
+        maxWidth: 650,
+      });
+    }
+
+    if (cost != null) {
+      drawText(page, formatCurrency(cost), row.cost, pageHeight, {
+        align: "right",
+      });
+    }
+
+    if (total != null) {
+      drawText(page, formatCurrency(total), row.total, pageHeight, {
+        align: "right",
+      });
+    }
+  }
+
+  // Totals
+  const subTotal = safeNumber(payload.subtotal);
+  const tax = safeNumber(payload.tax);
+  const grandTotal = safeNumber(payload.total);
+
+  if (subTotal != null) {
+    drawText(
+      page,
+      formatCurrency(subTotal),
+      coordsTL.subTotal,
+      pageHeight,
+      { align: "right" }
+    );
+  }
+
+  if (tax != null) {
+    drawText(page, formatCurrency(tax), coordsTL.tax, pageHeight, {
+      align: "right",
+    });
+  }
+
+  if (grandTotal != null) {
+    drawText(
+      page,
+      formatCurrency(grandTotal),
+      coordsTL.totalAmount,
+      pageHeight,
+      { align: "right" }
+    );
   }
 }
 
+function drawMultiLineBlock(
+  page: PDFPage,
+  lines: (string | null | undefined)[],
+  coords: TL[],
+  pageHeight: number
+) {
+  for (let i = 0; i < coords.length; i++) {
+    const line = lines[i] ?? "";
+    if (!line) continue;
+    drawText(page, line, coords[i], pageHeight);
+  }
+}
+
+async function embedSignatureImage(
+  pdfDoc: PDFDocument,
+  page: PDFPage,
+  signatureDataUrl: string,
+  pageHeight: number
+) {
+  if (!signatureDataUrl.startsWith("data:image")) {
+    return;
+  }
+
+  const base64 = signatureDataUrl.split(",")[1];
+  if (!base64) return;
+
+  const binary = atob(base64);
+  const len = binary.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  const pngImage = await pdfDoc.embedPng(bytes);
+
+  const boxWidth = 250;
+  const boxHeight = 60;
+
+  const pngDims = pngImage.scale(1);
+  const widthRatio = boxWidth / pngDims.width;
+  const heightRatio = boxHeight / pngDims.height;
+  const scale = Math.min(widthRatio, heightRatio);
+
+  const targetWidth = pngDims.width * scale;
+  const targetHeight = pngDims.height * scale;
+
+  const anchor = coordsTL.signature;
+  const x = toPdfPointX(anchor.x);
+  const y = toPdfPointY(anchor.y, pageHeight);
+
+  page.drawImage(pngImage, {
+    x,
+    y,
+    width: targetWidth,
+    height: targetHeight,
+  });
+}
+
+// Main function
 export async function generateServiceTicketPdfFromPayload(
   payload: NewServiceTicketPayload
 ): Promise<Uint8Array> {
   // IMPORTANT:
   // gcss-service-form.pdf must be in your Vite/React `public/` folder:
   //   /public/gcss-service-form.pdf
-  // so that it's accessible as:
-  //   /gcss-service-form.pdf
-  const formPdfBytes = await fetch("/gcss-service-form.pdf").then((r) =>
-    r.arrayBuffer()
-  );
+  // Use Vite base URL so it works in dev and in the built app.
+  const baseUrl = import.meta.env.BASE_URL || "/";
+  const formPdfUrl = `${baseUrl.replace(/\/+$/, "")}/gcss-service-form.pdf`;
+
+  const response = await fetch(formPdfUrl);
+  if (!response.ok) {
+    throw new Error(
+      `Failed to load template PDF from ${formPdfUrl}: ${response.status} ${response.statusText}`
+    );
+  }
+  const formPdfBytes = await response.arrayBuffer();
 
   const pdfDoc = await PDFDocument.load(formPdfBytes);
   const [page] = pdfDoc.getPages();
@@ -305,131 +388,101 @@ export async function generateServiceTicketPdfFromPayload(
 
   drawText(page, payload.billing_email, coordsTL.billingEmail, pageHeight);
   drawText(page, payload.billing_address, coordsTL.billingAddress, pageHeight);
-  drawText(page, payload.billing_city, coordsTL.billingCity, pageHeight);
-  drawText(page, payload.billing_state, coordsTL.billingState, pageHeight);
-  drawText(page, payload.billing_zip, coordsTL.billingZip, pageHeight);
+
+  drawText(page, payload.phone, coordsTL.phone, pageHeight);
+  drawText(page, payload.email, coordsTL.email, pageHeight);
 
   drawText(page, payload.technician, coordsTL.technician, pageHeight);
-
-  // ----------------------
-  // Service Work Performed
-  // ----------------------
-  if (payload.service_work) {
-    drawWrappedTextInBox(
-      page,
-      payload.service_work,
-      serviceWorkBox.topLeft,
-      serviceWorkBox.widthPx,
-      serviceWorkBox.heightPx,
-      pageHeight,
-      9 // font size
-    );
-  }
-
-  // -------------
-  // Materials rows
-  // -------------
-  const maxMaterials = Math.min(
-    payload.materials.length,
-    materialRowsTL.length
+  drawText(
+    page,
+    payload.ticket_number?.toString() ?? "",
+    coordsTL.ticketNumber,
+    pageHeight
   );
 
-  for (let i = 0; i < maxMaterials; i++) {
-    const row = payload.materials[i];
-    const c = materialRowsTL[i];
+  drawText(page, payload.date ?? "", coordsTL.date, pageHeight);
 
-    drawText(page, row.qty, c.qty, pageHeight);
-    drawText(page, row.description, c.description, pageHeight);
-    drawText(page, formatCurrency(row.cost), c.cost, pageHeight);
-    drawText(page, formatCurrency(row.total), c.total, pageHeight);
-  }
+  // Problems (first 5 lines)
+  const problems = (payload.problems ?? "").split(/\r?\n/);
+  drawMultiLineBlock(
+    page,
+    problems,
+    [
+      coordsTL.problem1,
+      coordsTL.problem2,
+      coordsTL.problem3,
+      coordsTL.problem4,
+      coordsTL.problem5,
+    ],
+    pageHeight
+  );
 
-  // -------------
-  // Labor rows
-  // -------------
-  const maxLabor = Math.min(payload.labor.length, laborRowsTL.length);
+  // Notes (next up to 7 lines)
+  const notes = (payload.notes ?? "").split(/\r?\n/);
+  drawMultiLineBlock(
+    page,
+    notes,
+    [
+      coordsTL.notes1,
+      coordsTL.notes2,
+      coordsTL.notes3,
+      coordsTL.notes4,
+      coordsTL.notes5,
+      coordsTL.notes6,
+      coordsTL.notes7,
+    ],
+    pageHeight
+  );
 
-  for (let i = 0; i < maxLabor; i++) {
-    const row = payload.labor[i];
-    const c = laborRowsTL[i];
+  // Recommendations (up to 5 lines)
+  const recs = (payload.recommendations ?? "").split(/\r?\n/);
+  drawMultiLineBlock(
+    page,
+    recs,
+    [
+      coordsTL.rec1,
+      coordsTL.rec2,
+      coordsTL.rec3,
+      coordsTL.rec4,
+      coordsTL.rec5,
+    ],
+    pageHeight
+  );
 
-    const techDateLabel = `${row.tech_initials} ${row.date}`.trim();
+  // Line items + totals
+  drawLineItems(page, payload, pageHeight);
 
-    drawText(page, techDateLabel, c.techDate, pageHeight);
+  // Work dates
+  drawText(page, payload.work_start ?? "", coordsTL.workStart, pageHeight);
+  drawText(page, payload.work_end ?? "", coordsTL.workEnd, pageHeight);
+
+  // Time + hours
+  drawText(page, payload.time_in ?? "", coordsTL.timeIn, pageHeight);
+  drawText(page, payload.time_out ?? "", coordsTL.timeOut, pageHeight);
+
+  if (payload.total_hours != null) {
     drawText(
       page,
-      `${formatCurrency(row.rate)}/hr`,
-      c.rateHr,
+      payload.total_hours.toString(),
+      coordsTL.totalHours,
       pageHeight
     );
-    drawText(page, formatTime12h(row.time_in), c.timeIn, pageHeight);
-    drawText(page, formatTime12h(row.time_out), c.timeOut, pageHeight);
-    drawText(page, row.total_hours.toFixed(2), c.totalHours, pageHeight);
-    drawText(page, formatCurrency(row.total_labor), c.totalLabor, pageHeight);
   }
 
-  // -------------
-  // Totals
-  // -------------
-  const totalLaborHours = payload.labor.reduce(
-    (sum, l) => sum + (l.total_hours || 0),
-    0
-  );
-  const totalLaborCost = payload.labor.reduce(
-    (sum, l) => sum + (l.total_labor || 0),
-    0
-  );
+  // Signature date
+  if (payload.signature_date) {
+    drawText(
+      page,
+      payload.signature_date,
+      coordsTL.signatureDate,
+      pageHeight
+    );
+  }
 
-  const grandTotal =
-    payload.grand_total ??
-    ((payload.material_total || 0) + (payload.labor_total || 0));
-
-  drawText(
-    page,
-    totalLaborHours.toFixed(2),
-    totalsTL.laborTotalHours,
-    pageHeight
-  );
-  drawText(
-    page,
-    formatCurrency(totalLaborCost),
-    totalsTL.laborTotalLabor,
-    pageHeight
-  );
-  drawText(page, formatCurrency(grandTotal), totalsTL.grandTotal, pageHeight);
-
-  // -------------
-  // Signature block
-  // -------------
-  drawText(
-    page,
-    payload.signature_name,
-    signatureTL.namePrinted,
-    pageHeight
-  );
-  drawText(page, payload.signature_date, signatureTL.date, pageHeight);
-
-  // Signature image (data URL) if present
-  if (payload.signature) {
+  // Signature image (if present)
+  if (payload.signature_image) {
     try {
-      const pngBytes = dataUrlToUint8Array(payload.signature);
-      const pngImage = await pdfDoc.embedPng(pngBytes);
-
-      const targetWidth = 200; // points, tweak if you want
-      const scale = targetWidth / pngImage.width;
-      const targetHeight = pngImage.height * scale;
-
-      const anchor = fromTopLeftToPdf(
-        signatureTL.customerSignature,
-        pageHeight
-      );
-
-      page.drawImage(pngImage, {
-        x: anchor.x,
-        y: anchor.y - targetHeight * 0.3, // nudge so it sits nicely
-        width: targetWidth,
-        height: targetHeight,
-      });
+      await embedSignatureImage(pdfDoc, page, payload.signature_image, pageHeight);
     } catch (err) {
       console.error("Error embedding signature image:", err);
     }
