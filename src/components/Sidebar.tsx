@@ -1,7 +1,7 @@
 // src/components/Sidebar.tsx
 import React from "react";
 
-type PageKey = "inventory" | "projects" | "timesheet";
+type PageKey = "inventory" | "projects" | "timesheet" | "pricing" | "service" | "calendar";
 type UserRole = "admin" | "tech" | "viewer";
 
 interface Profile {
@@ -33,6 +33,9 @@ const Sidebar: React.FC<SidebarProps> = ({
     { key: "inventory", label: "Inventory" },
     { key: "projects", label: "Projects" },
     { key: "timesheet", label: "Timesheets" },
+    { key: "service", label: "Service Tickets" },
+    { key: "calendar", label: "Calendar" }, // ✅ new
+    { key: "pricing", label: "Pricing" },
   ];
 
   const handleToggleTheme = () => {
@@ -157,14 +160,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                 borderRadius: 999,
                 border: "1px solid var(--gcss-border, #4b5563)",
                 background: isActive
-                  ? "rgba(37,99,235,0.9)"
+                  ? "rgba(220,38,38,0.9)" // 🔴 red active background
                   : "transparent",
-                color: isActive ? "#f9fafb" : "var(--gcss-on-surface, #e5e7eb)",
+                color: isActive
+                  ? "#f9fafb"
+                  : "var(--gcss-on-surface, #e5e7eb)",
                 fontSize: "0.85rem",
                 fontWeight: isActive ? 600 : 500,
                 cursor: "pointer",
                 boxShadow: isActive
-                  ? "0 0 0 1px rgba(59,130,246,0.5)"
+                  ? "0 0 0 1px rgba(248,113,113,0.5)" // 🔴 soft red halo
                   : "none",
               }}
             >
