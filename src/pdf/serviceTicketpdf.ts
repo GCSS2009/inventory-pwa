@@ -2,16 +2,8 @@
 import { PDFDocument, rgb, type PDFPage } from "pdf-lib";
 import type { NewServiceTicketPayload } from "../types";
 
-// Your coords were measured on the grid image:
-// - origin at TOP-LEFT
-// - units in pixels
-// The rendered image was at 2 px per PDF point.
-// pdf-lib uses BOTTOM-LEFT origin in points.
-// So we convert:
-//
-//  x_pt = x_px / 2
-//  y_pt = pageHeight - (y_px / 2)
-//
+// Coordinates & helpers
+
 const SCALE = 2; // 2 pixels per PDF point
 
 type TL = { x: number; y: number };
@@ -111,7 +103,7 @@ const coordsTL = {
   tax: { x: 1040, y: 1120 } as TL,
   totalAmount: { x: 1040, y: 1145 } as TL,
 
-  // Signature + date (these are *bottom-left* anchors roughly)
+  // Signature + date
   signature: { x: 170, y: 1170 } as TL,
   signatureDate: { x: 650, y: 1170 } as TL,
 
@@ -155,7 +147,6 @@ function drawText(
   const y = toPdfPointY(tl.y, pageHeight);
 
   if (!maxWidth || value.length < maxWidth / (size * 0.6)) {
-    // Single line
     let drawX = x;
     if (align === "center") {
       drawX = x - (value.length * size * 0.3) / 2;
@@ -172,7 +163,6 @@ function drawText(
     return;
   }
 
-  // Naive multi-line wrapping
   const words = value.split(/\s+/);
   const lines: string[] = [];
   let current = "";
@@ -263,7 +253,6 @@ function drawLineItems(
     }
   }
 
-  // Totals
   const subTotal = safeNumber(payload.subtotal);
   const tax = safeNumber(payload.tax);
   const grandTotal = safeNumber(payload.total);
@@ -357,12 +346,11 @@ async function embedSignatureImage(
 export async function generateServiceTicketPdfFromPayload(
   payload: NewServiceTicketPayload
 ): Promise<Uint8Array> {
-  // IMPORTANT:
-  // gcss-service-form.pdf must be in your Vite/React `public/` folder:
-  //   /public/gcss-service-form.pdf
-  // Use Vite base URL so it works in dev and in the built app.
-  const baseUrl = import.meta.env.BASE_URL || "/";
-  const formPdfUrl = `${baseUrl.replace(/\/+$/, "")}/gcss-service-form.pdf`;
+  // Template must be in:
+  // - dev:     public/gcss-service-form.pdf
+  // - build:   docs/gcss-service-form.pdf (same folder as index.html)
+  // So we use a *relative* URL:
+  const formPdfUrl = "gcss-service-form.pdf";
 
   const response = await fetch(formPdfUrl);
   if (!response.ok) {
@@ -376,9 +364,7 @@ export async function generateServiceTicketPdfFromPayload(
   const [page] = pdfDoc.getPages();
   const pageHeight = page.getHeight();
 
-  // ----------------------
-  // Header / Customer info
-  // ----------------------
+  // Header / customer info
   drawText(page, payload.customer_name, coordsTL.customerName, pageHeight);
 
   drawText(page, payload.address, coordsTL.address, pageHeight);
@@ -402,7 +388,7 @@ export async function generateServiceTicketPdfFromPayload(
 
   drawText(page, payload.date ?? "", coordsTL.date, pageHeight);
 
-  // Problems (first 5 lines)
+  // Problems
   const problems = (payload.problems ?? "").split(/\r?\n/);
   drawMultiLineBlock(
     page,
@@ -417,7 +403,7 @@ export async function generateServiceTicketPdfFromPayload(
     pageHeight
   );
 
-  // Notes (next up to 7 lines)
+  // Notes
   const notes = (payload.notes ?? "").split(/\r?\n/);
   drawMultiLineBlock(
     page,
@@ -434,7 +420,7 @@ export async function generateServiceTicketPdfFromPayload(
     pageHeight
   );
 
-  // Recommendations (up to 5 lines)
+  // Recommendations
   const recs = (payload.recommendations ?? "").split(/\r?\n/);
   drawMultiLineBlock(
     page,
@@ -479,7 +465,7 @@ export async function generateServiceTicketPdfFromPayload(
     );
   }
 
-  // Signature image (if present)
+  // Signature image
   if (payload.signature_image) {
     try {
       await embedSignatureImage(pdfDoc, page, payload.signature_image, pageHeight);
