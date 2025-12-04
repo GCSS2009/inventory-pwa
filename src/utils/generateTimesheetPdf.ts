@@ -35,18 +35,29 @@ function formatTimeLabel(iso: string | null) {
 }
 
 export async function generateTimesheetPdf(options: {
-  templateUrl: string;
+  // templateUrl is kept for backwards compatibility but ignored;
+  // we always use a relative URL so it works in dev + GitHub Pages.
+  templateUrl?: string;
   employeeName: string;
   weekStart: Date;
   weekEnd: Date;
   entries: PdfTimesheetEntry[];
 }) {
-  const { templateUrl, employeeName, weekStart, weekEnd, entries } = options;
+  const { employeeName, weekStart, weekEnd, entries } = options;
 
-  // 1) Load template
-  const templateBytes = await fetch(templateUrl).then((res) =>
-    res.arrayBuffer()
-  );
+  // 1) Load template from a RELATIVE URL
+  // In dev:         http://localhost:5173/gcss-timesheet-template.pdf
+  // On GitHub Pages: https://gcss2009.github.io/inventory-pwa/gcss-timesheet-template.pdf
+  const resolvedTemplateUrl = "gcss-timesheet-template.pdf";
+
+  const response = await fetch(resolvedTemplateUrl);
+  if (!response.ok) {
+    throw new Error(
+      `Failed to load timesheet template from ${resolvedTemplateUrl}: ${response.status} ${response.statusText}`
+    );
+  }
+  const templateBytes = await response.arrayBuffer();
+
   const pdfDoc = await PDFDocument.load(templateBytes);
   const [page] = pdfDoc.getPages();
 
@@ -70,7 +81,7 @@ export async function generateTimesheetPdf(options: {
 
   // Header: Name & Week Ending range
   page.drawText(employeeName, {
-    x: 80,         // Name
+    x: 80, // Name
     y: 650,
     size: 10,
     font: helveticaBold,
@@ -78,7 +89,7 @@ export async function generateTimesheetPdf(options: {
   });
 
   page.drawText(weekRangeText, {
-    x: 320,        // Week ending range
+    x: 320, // Week ending range
     y: 650,
     size: 10,
     font: helveticaBold,
@@ -95,11 +106,11 @@ export async function generateTimesheetPdf(options: {
   });
 
   // 4) Table rows
-  // First data row at y = 625, each row 14 pts down
+  // First data row at y = 625, each row 12 pts down
   let currentY = 625;
   const rowHeight = 12;
 
-  // Columns (from your measurements)
+  // Columns
   const colDayX = 20;
   const colDateX = 60;
   const colTimeInX = 120;
@@ -178,7 +189,7 @@ export async function generateTimesheetPdf(options: {
 
   // 5) Employee signature autofill (manager signature left blank)
   page.drawText(employeeName, {
-    x: 220,  // Employee signature line
+    x: 220, // Employee signature line
     y: 160,
     size: 10,
     font: helvetica,
