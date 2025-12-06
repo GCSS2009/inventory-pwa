@@ -3,10 +3,9 @@ import type { Profile } from "../../types";
 
 interface Props {
   profile: Profile | null;
-  handleLogout: () => void;
 }
 
-const ProjectsHeader: React.FC<Props> = ({ profile, handleLogout }) => {
+const ProjectsHeader: React.FC<Props> = ({ profile }) => {
   return (
     <div
       style={{
@@ -29,22 +28,6 @@ const ProjectsHeader: React.FC<Props> = ({ profile, handleLogout }) => {
           Track required parts per project and allocations from office & van.
         </div>
       </div>
-
-      <button
-        onClick={handleLogout}
-        style={{
-          padding: "0.35rem 0.85rem",
-          borderRadius: 999,
-          border: "none",
-          background: "#dc2626",
-          color: "#fef2f2",
-          cursor: "pointer",
-          fontSize: "0.8rem",
-          fontWeight: 600,
-        }}
-      >
-        Logout
-      </button>
     </div>
   );
 };

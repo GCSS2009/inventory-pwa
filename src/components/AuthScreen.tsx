@@ -27,8 +27,8 @@ const AuthScreen: React.FC<AuthScreenProps> = ({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "var(--gcss-surface, #020617)",
-        color: "var(--gcss-on-surface, #e5e7eb)",
+        background: "var(--gcss-bg, #020617)",
+        color: "var(--gcss-text, #111827)",
         padding: "1.5rem",
       }}
     >
@@ -36,12 +36,13 @@ const AuthScreen: React.FC<AuthScreenProps> = ({
         style={{
           width: "100%",
           maxWidth: 380,
-          padding: "1.5rem 1.75rem",
+          padding: "1.75rem 1.9rem",
           borderRadius: 12,
-          border: "1px solid rgba(148,163,184,0.4)",
+          border: "1px solid var(--gcss-border, #e5e7eb)",
           background:
-            "radial-gradient(circle at top, rgba(37,99,235,0.35), transparent 60%), rgba(15,23,42,0.95)",
-          boxShadow: "0 18px 45px rgba(15,23,42,0.9)",
+            "radial-gradient(circle at top, rgba(37,99,235,0.28), transparent 60%), var(--gcss-surface, #ffffff)",
+          boxShadow: "0 18px 45px rgba(15,23,42,0.4)",
+          boxSizing: "border-box",
         }}
       >
         <h1
@@ -52,14 +53,14 @@ const AuthScreen: React.FC<AuthScreenProps> = ({
             fontWeight: 700,
           }}
         >
-          GCSS Inventory
+          GCSS Operations
         </h1>
         <p
           style={{
             margin: 0,
             marginBottom: "1.25rem",
             fontSize: "0.85rem",
-            color: "var(--gcss-muted, #9ca3af)",
+            color: "var(--gcss-muted, #6b7280)",
           }}
         >
           Sign in with your GCSS credentials to continue.
@@ -103,10 +104,11 @@ const AuthScreen: React.FC<AuthScreenProps> = ({
                 width: "100%",
                 padding: "0.45rem 0.55rem",
                 borderRadius: 6,
-                border: "1px solid rgba(148,163,184,0.7)",
-                background: "rgba(15,23,42,0.9)",
-                color: "var(--gcss-on-surface, #e5e7eb)",
+                border: "1px solid var(--gcss-border, #d1d5db)",
+                background: "var(--gcss-surface, #ffffff)",
+                color: "var(--gcss-text, #111827)",
                 fontSize: "0.85rem",
+                boxSizing: "border-box",
               }}
               required
             />
@@ -133,10 +135,11 @@ const AuthScreen: React.FC<AuthScreenProps> = ({
                 width: "100%",
                 padding: "0.45rem 0.55rem",
                 borderRadius: 6,
-                border: "1px solid rgba(148,163,184,0.7)",
-                background: "rgba(15,23,42,0.9)",
-                color: "var(--gcss-on-surface, #e5e7eb)",
+                border: "1px solid var(--gcss-border, #d1d5db)",
+                background: "var(--gcss-surface, #ffffff)",
+                color: "var(--gcss-text, #111827)",
                 fontSize: "0.85rem",
+                boxSizing: "border-box",
               }}
               required
             />
@@ -152,11 +155,12 @@ const AuthScreen: React.FC<AuthScreenProps> = ({
               border: "none",
               background: loading
                 ? "rgba(37,99,235,0.6)"
-                : "rgba(37,99,235,0.95)",
-              color: "#e5e7eb",
+                : "var(--gcss-blue, #2563eb)",
+              color: "#f9fafb",
               fontWeight: 600,
               fontSize: "0.9rem",
               cursor: loading ? "default" : "pointer",
+              transition: "background 0.15s ease, transform 0.1s ease",
             }}
           >
             {loading ? "Signing in..." : "Sign in"}

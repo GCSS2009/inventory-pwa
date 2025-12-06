@@ -1,10 +1,8 @@
 import React from "react";
 
-interface Props {
-  handleLogout: () => void;
-}
+interface Props {}
 
-const TimesheetHeader: React.FC<Props> = ({ handleLogout }) => {
+const TimesheetHeader: React.FC<Props> = () => {
   return (
     <div
       style={{
@@ -17,17 +15,6 @@ const TimesheetHeader: React.FC<Props> = ({ handleLogout }) => {
       }}
     >
       <h2 style={{ margin: 0 }}>Timesheets</h2>
-      <button
-        onClick={handleLogout}
-        style={{
-          backgroundColor: "#dc2626",
-          color: "white",
-          padding: "0.4rem 1rem",
-          borderRadius: "12px",
-        }}
-      >
-        Logout
-      </button>
     </div>
   );
 };

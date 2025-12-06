@@ -24,6 +24,7 @@ interface SidebarProps {
   profile: Profile | null;
   isMobile: boolean;
   appVersion: string;
+  onLogout: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -34,6 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   profile,
   isMobile,
   appVersion,
+  onLogout,
 }) => {
   const navItems: { key: PageKey; label: string }[] = [
     { key: "inventory", label: "Inventory" },
@@ -71,18 +73,22 @@ const Sidebar: React.FC<SidebarProps> = ({
         display: "flex",
         flexDirection: "column",
         gap: "1rem",
+        position: "sticky",
+        top: 0,
+        height: "100vh",
+        boxSizing: "border-box",
       };
 
   return (
     <aside style={containerStyle}>
-      {/* Brand + user info */}
+      {/* Brand + user info + theme + logout */}
       <div
         style={{
           display: "flex",
           flexDirection: isMobile ? "row" : "column",
           alignItems: isMobile ? "center" : "flex-start",
           justifyContent: "space-between",
-          gap: isMobile ? "0.75rem" : "0.25rem",
+          gap: isMobile ? "0.75rem" : "0.5rem",
           width: "100%",
         }}
       >
@@ -93,7 +99,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               fontSize: isMobile ? "1rem" : "1.1rem",
             }}
           >
-            GCSS Inventory
+            GCSS Operations
           </div>
 
           {profile && (
@@ -110,33 +116,63 @@ const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* Theme toggle */}
-        <button
-          type="button"
-          onClick={handleToggleTheme}
+        {/* Theme toggle + Logout */}
+        <div
           style={{
-            borderRadius: 999,
-            border: "1px solid var(--gcss-border)",
-            padding: "0.15rem 0.6rem",
-            fontSize: "0.75rem",
             display: "flex",
+            flexDirection: "row",
             alignItems: "center",
-            gap: "0.25rem",
-            background:
-              theme === "dark"
-                ? "rgba(15,23,42,0.8)"
-                : "rgba(249,250,251,0.06)",
-            /* FIXED — now sidebar respects theme colors */
-            color: "var(--gcss-sidebar-text)",
-            cursor: "pointer",
-            whiteSpace: "nowrap",
+            gap: "0.4rem",
+            marginLeft: isMobile ? "auto" : 0,
           }}
         >
-          <span aria-hidden="true" style={{ fontSize: "0.85rem", lineHeight: 1 }}>
-            {theme === "dark" ? "🌙" : "☀️"}
-          </span>
-          <span>{theme === "dark" ? "Dark" : "Light"}</span>
-        </button>
+          <button
+            type="button"
+            onClick={handleToggleTheme}
+            style={{
+              borderRadius: 999,
+              border: "1px solid var(--gcss-border)",
+              padding: "0.15rem 0.6rem",
+              fontSize: "0.75rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.25rem",
+              background:
+                theme === "dark"
+                  ? "rgba(15,23,42,0.8)"
+                  : "rgba(249,250,251,0.06)",
+              color: "var(--gcss-sidebar-text)",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <span
+              aria-hidden="true"
+              style={{ fontSize: "0.85rem", lineHeight: 1 }}
+            >
+              {theme === "dark" ? "🌙" : "☀️"}
+            </span>
+            <span>{theme === "dark" ? "Dark" : "Light"}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onLogout}
+            style={{
+              padding: "0.25rem 0.7rem",
+              borderRadius: 999,
+              border: "1px solid #dc2626",
+              background: "#dc2626",
+              color: "#f9fafb",
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Navigation */}
@@ -165,9 +201,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 borderRadius: 999,
                 border: "1px solid var(--gcss-border)",
                 background: isActive ? "rgba(220,38,38,0.9)" : "transparent",
-                color: isActive
-                  ? "#f9fafb"
-                  : "var(--gcss-sidebar-text)",
+                color: isActive ? "#f9fafb" : "var(--gcss-sidebar-text)",
                 fontSize: "0.85rem",
                 fontWeight: isActive ? 600 : 500,
                 cursor: "pointer",
@@ -182,7 +216,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         })}
       </nav>
 
-      {/* Footer */}
+      {/* Footer: version only */}
       {!isMobile && (
         <div
           style={{
@@ -200,7 +234,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       {isMobile && (
         <div
           style={{
-            marginLeft: "auto",
+            marginTop: "0.35rem",
             fontSize: "0.7rem",
             color: "var(--gcss-muted)",
           }}

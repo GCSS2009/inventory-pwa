@@ -6,10 +6,9 @@ import type { Profile } from "../../types";
 interface Props {
   session: Session | null;
   profile: Profile | null;
-  handleLogout: () => void;
 }
 
-const InventoryHeader: React.FC<Props> = ({ session, profile, handleLogout }) => (
+const InventoryHeader: React.FC<Props> = ({ session, profile }) => (
   <div
     style={{
       display: "flex",
@@ -34,22 +33,6 @@ const InventoryHeader: React.FC<Props> = ({ session, profile, handleLogout }) =>
         </div>
       )}
     </div>
-
-    <button
-      onClick={handleLogout}
-      style={{
-        padding: "0.35rem 0.85rem",
-        borderRadius: 999,
-        border: "none",
-        background: "#dc2626",
-        color: "white",
-        cursor: "pointer",
-        fontSize: "0.8rem",
-        fontWeight: 600,
-      }}
-    >
-      Logout
-    </button>
   </div>
 );
 

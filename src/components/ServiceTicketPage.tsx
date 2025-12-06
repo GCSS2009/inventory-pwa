@@ -14,7 +14,6 @@ interface Props {
   profile: Profile | null;
   saving: boolean;
   onSaveTicket: (payload: NewServiceTicketPayload) => Promise<void | unknown>;
-  handleLogout: () => void;
 }
 
 interface InventoryItemForDropdown {
@@ -46,10 +45,7 @@ type LaborRow = {
 const EDGE_FUNCTION_URL =
   "https://jylxizselxfrwhvgjqqi.supabase.co/functions/v1/upload-service-ticket";
 
-const ServiceTicketPage: React.FC<Props> = ({
-  profile,
-  handleLogout,
-}) => {
+const ServiceTicketPage: React.FC<Props> = ({ profile }) => {
   const [inventoryItems, setInventoryItems] =
     useState<InventoryItemForDropdown[]>([]);
   const [loadingInventory, setLoadingInventory] = useState(false);
@@ -450,21 +446,6 @@ const ServiceTicketPage: React.FC<Props> = ({
               {profile.email ?? "Unknown user"}
             </div>
           )}
-          <button
-            type="button"
-            onClick={handleLogout}
-            style={{
-              padding: "0.4rem 0.75rem",
-              borderRadius: 999,
-              border: "1px solid var(--gcss-border, #4b5563)",
-              background: "transparent",
-              color: "var(--gcss-fg, #f9fafb)",
-              cursor: "pointer",
-              fontSize: "0.85rem",
-            }}
-          >
-            Logout
-          </button>
         </div>
 
         {/* Customer Info */}

@@ -558,6 +558,7 @@ const App: React.FC = () => {
               profile={profile}
               isMobile={true}
               appVersion={APP_VERSION}
+              onLogout={handleLogout}
             />
           )
         ) : (

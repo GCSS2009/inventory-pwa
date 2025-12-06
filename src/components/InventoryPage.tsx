@@ -89,7 +89,6 @@ const InventoryPage: React.FC<Props> = ({
   handleCreateItem,
 
   handleAdjust,
-  handleLogout,
   onRefreshHistory,
 }) => {
   const [filter, setFilter] = React.useState("");
@@ -122,7 +121,7 @@ const InventoryPage: React.FC<Props> = ({
   return (
     <div style={{ padding: "0 0.75rem 1.25rem", // no top padding, just sides & bottom maxWidth: 1200,
        }}>
-      <InventoryHeader session={session} profile={profile} handleLogout={handleLogout} />
+      <InventoryHeader session={session} profile={profile}  />
 
       {inventoryError && <div style={{ color: "red" }}>{inventoryError}</div>}
       {changesError && <div style={{ color: "red" }}>{changesError}</div>}
