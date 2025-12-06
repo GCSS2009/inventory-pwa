@@ -15,7 +15,10 @@ interface UseWorkItemsResult {
   deleteWorkItem: (item: WorkItem) => Promise<void>;
 }
 
-export function useWorkItems({ profile }: UseWorkItemsArgs): UseWorkItemsResult {
+export function useWorkItems(
+  { profile }: UseWorkItemsArgs = { profile: null }
+): UseWorkItemsResult {
+
   const [workItems, setWorkItems] = useState<WorkItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

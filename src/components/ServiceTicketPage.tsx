@@ -431,7 +431,7 @@ const ServiceTicketPage: React.FC<Props> = ({
   return (
     <div
       className="page service-ticket-page"
-      style={{ display: "flex", justifyContent: "center" }}
+      style={{ padding: "0 0.75rem 1.25rem" }}
     >
       <div style={{ width: "100%", maxWidth: 960 }}>
         {/* Header */}

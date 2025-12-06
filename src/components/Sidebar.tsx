@@ -1,7 +1,13 @@
 // src/components/Sidebar.tsx
 import React from "react";
 
-type PageKey = "inventory" | "projects" | "timesheet" | "pricing" | "service" | "calendar";
+type PageKey =
+  | "inventory"
+  | "projects"
+  | "timesheet"
+  | "pricing"
+  | "service"
+  | "calendar";
 type UserRole = "admin" | "tech" | "viewer";
 
 interface Profile {
@@ -34,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { key: "projects", label: "Projects" },
     { key: "timesheet", label: "Timesheets" },
     { key: "service", label: "Service Tickets" },
-    { key: "calendar", label: "Calendar" }, // ✅ new
+    { key: "calendar", label: "Calendar" },
     { key: "pricing", label: "Pricing" },
   ];
 
@@ -45,9 +51,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   const containerStyle: React.CSSProperties = isMobile
     ? {
         width: "100%",
-        borderBottom: "1px solid var(--gcss-border, #e5e7eb)",
-        background: "var(--gcss-surface-strong, #020617)",
-        color: "var(--gcss-on-surface, #e5e7eb)",
+        borderBottom: "1px solid var(--gcss-border)",
+        background: "var(--gcss-sidebar-bg)",
+        color: "var(--gcss-sidebar-text)",
         padding: "0.5rem 0.75rem",
         display: "flex",
         alignItems: "center",
@@ -58,9 +64,9 @@ const Sidebar: React.FC<SidebarProps> = ({
       }
     : {
         width: 240,
-        borderRight: "1px solid var(--gcss-border, #e5e7eb)",
-        background: "var(--gcss-surface-strong, #020617)",
-        color: "var(--gcss-on-surface, #e5e7eb)",
+        borderRight: "1px solid var(--gcss-border)",
+        background: "var(--gcss-sidebar-bg)",
+        color: "var(--gcss-sidebar-text)",
         padding: "1rem 0.9rem",
         display: "flex",
         flexDirection: "column",
@@ -89,11 +95,12 @@ const Sidebar: React.FC<SidebarProps> = ({
           >
             GCSS Inventory
           </div>
+
           {profile && (
             <div
               style={{
                 fontSize: "0.8rem",
-                color: "var(--gcss-muted, #9ca3af)",
+                color: "var(--gcss-muted)",
                 marginTop: isMobile ? 0 : "0.15rem",
               }}
             >
@@ -109,7 +116,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           onClick={handleToggleTheme}
           style={{
             borderRadius: 999,
-            border: "1px solid var(--gcss-border, #4b5563)",
+            border: "1px solid var(--gcss-border)",
             padding: "0.15rem 0.6rem",
             fontSize: "0.75rem",
             display: "flex",
@@ -119,15 +126,13 @@ const Sidebar: React.FC<SidebarProps> = ({
               theme === "dark"
                 ? "rgba(15,23,42,0.8)"
                 : "rgba(249,250,251,0.06)",
-            color: "inherit",
+            /* FIXED — now sidebar respects theme colors */
+            color: "var(--gcss-sidebar-text)",
             cursor: "pointer",
             whiteSpace: "nowrap",
           }}
         >
-          <span
-            aria-hidden="true"
-            style={{ fontSize: "0.85rem", lineHeight: 1 }}
-          >
+          <span aria-hidden="true" style={{ fontSize: "0.85rem", lineHeight: 1 }}>
             {theme === "dark" ? "🌙" : "☀️"}
           </span>
           <span>{theme === "dark" ? "Dark" : "Light"}</span>
@@ -158,18 +163,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                 textAlign: isMobile ? "center" : "left",
                 padding: "0.4rem 0.7rem",
                 borderRadius: 999,
-                border: "1px solid var(--gcss-border, #4b5563)",
-                background: isActive
-                  ? "rgba(220,38,38,0.9)" // 🔴 red active background
-                  : "transparent",
+                border: "1px solid var(--gcss-border)",
+                background: isActive ? "rgba(220,38,38,0.9)" : "transparent",
                 color: isActive
                   ? "#f9fafb"
-                  : "var(--gcss-on-surface, #e5e7eb)",
+                  : "var(--gcss-sidebar-text)",
                 fontSize: "0.85rem",
                 fontWeight: isActive ? 600 : 500,
                 cursor: "pointer",
                 boxShadow: isActive
-                  ? "0 0 0 1px rgba(248,113,113,0.5)" // 🔴 soft red halo
+                  ? "0 0 0 1px rgba(248,113,113,0.5)"
                   : "none",
               }}
             >
@@ -179,13 +182,13 @@ const Sidebar: React.FC<SidebarProps> = ({
         })}
       </nav>
 
-      {/* Footer: version (desktop only pinned at bottom, mobile inline) */}
+      {/* Footer */}
       {!isMobile && (
         <div
           style={{
             marginTop: "auto",
             fontSize: "0.7rem",
-            color: "var(--gcss-muted, #9ca3af)",
+            color: "var(--gcss-muted)",
             paddingTop: "0.75rem",
             borderTop: "1px solid rgba(148,163,184,0.4)",
           }}
@@ -199,7 +202,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           style={{
             marginLeft: "auto",
             fontSize: "0.7rem",
-            color: "var(--gcss-muted, #9ca3af)",
+            color: "var(--gcss-muted)",
           }}
         >
           v{appVersion}

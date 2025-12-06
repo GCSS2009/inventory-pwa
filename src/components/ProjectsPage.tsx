@@ -116,8 +116,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
     <div
       style={{
         maxWidth: 960,
-        margin: "0 auto",
-        padding: "0.25rem 0.5rem 0",
+        padding: "0 0.5rem 0.75rem",
       }}
     >
       <ProjectsHeader profile={profile} handleLogout={handleLogout} />

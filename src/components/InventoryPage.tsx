@@ -52,7 +52,6 @@ interface Props {
   handleCreateItem: (e: React.FormEvent) => void;
 
   handleAdjust: (action: AdjustAction) => void;
-  handleLogout: () => void;
 
   onRefreshHistory?: () => Promise<void>;
 }
@@ -121,7 +120,8 @@ const InventoryPage: React.FC<Props> = ({
   }, [filtered]);
 
   return (
-    <div style={{ padding: "1rem", maxWidth: 1200, margin: "0 auto" }}>
+    <div style={{ padding: "0 0.75rem 1.25rem", // no top padding, just sides & bottom maxWidth: 1200,
+       }}>
       <InventoryHeader session={session} profile={profile} handleLogout={handleLogout} />
 
       {inventoryError && <div style={{ color: "red" }}>{inventoryError}</div>}

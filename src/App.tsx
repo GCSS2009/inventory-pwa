@@ -575,7 +575,7 @@ const App: React.FC = () => {
         <main
           style={{
             flex: 1,
-            padding: isMobile ? "0.75rem" : "1.25rem",
+            padding: isMobile ? "0.25rem 0.75rem 0.75rem" : "0.5rem 1.25rem 1.25rem",
             overflowX: "hidden",
           }}
         >

@@ -37,7 +37,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ profile, employees }) => {
   const { workItems, loading, error, saveWorkItem, deleteWorkItem } =
     useWorkItems({ profile });
 
-  const [current, setCurrent] = useState<Partial<WorkItem>>({});
+  const [current, setCurrent] = useState<Partial<WorkItem> | null>(null);
   const [saving, setSaving] = useState(false);
   const [weekStart, setWeekStart] = useState<Date>(() => startOfWeek(new Date()));
 
@@ -106,7 +106,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ profile, employees }) => {
     try {
       setSaving(true);
       await deleteWorkItem(item);
-      setCurrent({});
+      setCurrent(null);
     } finally {
       setSaving(false);
     }
@@ -186,17 +186,21 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ profile, employees }) => {
     gap: "0.75rem",
     background: surfaceStrong,
     color: onSurface,
-    height: "100%",
+    width: "100%",
+    boxSizing: "border-box",
   };
 
   const rightStyle: React.CSSProperties = {
     border: `1px solid ${borderColor}`,
     borderRadius: 8,
     padding: "0.75rem",
-    overflow: "auto",
     background: surfaceStrong,
     color: onSurface,
-    height: "100%",
+    marginTop: "1rem",
+    width: "100%",
+    boxSizing: "border-box",
+    // allow the wide form content to be fully visible
+    overflowX: "auto",
   };
 
   const weekGridOuter: React.CSSProperties = {
@@ -209,7 +213,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ profile, employees }) => {
     gridTemplateColumns: "repeat(7, minmax(120px, 1fr))",
     columnGap: "0.5rem",
     alignItems: "stretch",
-    minWidth: 900,
+    minWidth: 900, // original value that matched your calendar layout
   };
 
   const dayColumnBase: React.CSSProperties = {
@@ -219,13 +223,23 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ profile, employees }) => {
     display: "flex",
     flexDirection: "column",
     minHeight: 150,
-    background: "rgba(15,23,42,0.7)",
+    background: surfaceStrong,
   };
 
+  const hasCurrentSelection = !!current;
+
   return (
-    <div className="flex flex-col md:flex-row gap-4 h-full">
-      {/* LEFT: week calendar */}
-      <div className="md:w-2/3" style={leftStyle}>
+    // vertical stack, full width
+    <div
+      style={{
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+      }}
+    >
+      {/* Calendar block */}
+      <div style={leftStyle}>
         <div
           style={{
             display: "flex",
@@ -242,7 +256,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ profile, employees }) => {
                 fontSize: "0.75rem",
                 borderRadius: 4,
                 border: `1px solid ${borderColor}`,
-                background: "rgba(15,23,42,0.9)",
+                background: surfaceStrong,
                 color: onSurface,
                 cursor: "pointer",
               }}
@@ -257,7 +271,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ profile, employees }) => {
                 fontSize: "0.75rem",
                 borderRadius: 4,
                 border: `1px solid ${borderColor}`,
-                background: "rgba(15,23,42,0.9)",
+                background: surfaceStrong,
                 color: onSurface,
                 cursor: "pointer",
               }}
@@ -272,7 +286,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ profile, employees }) => {
                 fontSize: "0.75rem",
                 borderRadius: 4,
                 border: `1px solid ${borderColor}`,
-                background: "rgba(15,23,42,0.9)",
+                background: surfaceStrong,
                 color: onSurface,
                 cursor: "pointer",
               }}
@@ -298,7 +312,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ profile, employees }) => {
                 borderColor: isToday ? "#ef4444" : borderColor,
                 background: isToday
                   ? "rgba(248,113,113,0.18)"
-                  : "rgba(15,23,42,0.7)",
+                  : surfaceStrong,
               };
 
               return (
@@ -327,7 +341,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ profile, employees }) => {
                           padding: "0.1rem 0.35rem",
                           borderRadius: 4,
                           border: `1px solid ${borderColor}`,
-                          background: "rgba(15,23,42,0.9)",
+                          background: surfaceStrong,
                           color: onSurface,
                           cursor: "pointer",
                         }}
@@ -358,7 +372,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ profile, employees }) => {
                       </div>
                     )}
                     {items.map((item) => {
-                      const selected = current?.id === item.id;
+                      const selected = current && current.id === item.id;
                       const timeLabel = formatTime(item.start_time);
                       return (
                         <button
@@ -374,7 +388,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ profile, employees }) => {
                             }`,
                             background: selected
                               ? "rgba(248,113,113,0.25)"
-                              : "rgba(15,23,42,0.95)",
+                              : surfaceStrong,
                             cursor: "pointer",
                             fontSize: "0.7rem",
                             color: onSurface,
@@ -429,40 +443,42 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ profile, employees }) => {
         )}
       </div>
 
-      {/* RIGHT: detail form + delete */}
-      <div className="md:w-1/3" style={rightStyle}>
-        <WorkItemForm
-          profile={profile}
-          employees={employees}
-          isAdmin={isAdmin}
-          value={current}
-          onChange={setCurrent}
-          onSave={handleSave}
-          saving={saving}
-        />
+      {/* Form block BELOW calendar */}
+      {hasCurrentSelection && (
+        <div style={rightStyle}>
+          <WorkItemForm
+            profile={profile}
+            employees={employees}
+            isAdmin={isAdmin}
+            value={current || {}}
+            onChange={setCurrent}
+            onSave={handleSave}
+            saving={saving}
+          />
 
-        {isAdmin && current && current.id && (
-          <div style={{ marginTop: "0.75rem" }}>
-            <button
-              type="button"
-              disabled={saving}
-              onClick={handleDelete}
-              style={{
-                padding: "0.3rem 0.75rem",
-                fontSize: "0.8rem",
-                borderRadius: 4,
-                border: "1px solid #dc2626",
-                background: "#dc2626",
-                color: "#f9fafb",
-                cursor: saving ? "default" : "pointer",
-                opacity: saving ? 0.6 : 1,
-              }}
-            >
-              Delete Job
-            </button>
-          </div>
-        )}
-      </div>
+          {isAdmin && current && current.id && (
+            <div style={{ marginTop: "0.75rem" }}>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={handleDelete}
+                style={{
+                  padding: "0.3rem 0.75rem",
+                  fontSize: "0.8rem",
+                  borderRadius: 4,
+                  border: "1px solid #dc2626",
+                  background: "#dc2626",
+                  color: "#f9fafb",
+                  cursor: saving ? "default" : "pointer",
+                  opacity: saving ? 0.6 : 1,
+                }}
+              >
+                Delete Job
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

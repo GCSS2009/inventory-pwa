@@ -248,9 +248,7 @@ const WorkItemForm: React.FC<WorkItemFormProps> = ({
       );
       lines.push("");
       lines.push(
-        `Sales Opportunity?: ${
-          workItem.sales_opportunity ?? ""
-        }`.trim()
+        `Sales Opportunity?: ${workItem.sales_opportunity ?? ""}`.trim()
       );
     }
 
@@ -260,7 +258,10 @@ const WorkItemForm: React.FC<WorkItemFormProps> = ({
   const readonly = !isAdmin && role !== "admin";
 
   return (
-    <div className="flex flex-col gap-3 text-sm">
+    <div
+      className="text-sm w-full max-w-4xl mx-auto"
+      style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
+    >
       <h2 className="text-base font-semibold mb-1">
         {workItem.id ? "Edit Job" : "New Job"}
       </h2>
